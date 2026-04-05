@@ -59,6 +59,7 @@ compile_circuit "withdraw"
 
 # Record constraint counts
 echo "[compile] Counting constraints..."
-npx snarkjs r1cs info "$BUILD_DIR/withdraw/withdraw.r1cs" | tee -a "$(dirname "$0")/../docs/circuit-constraints.md"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+npx snarkjs r1cs info "$BUILD_DIR/withdraw/withdraw.r1cs" | tee -a "$SCRIPT_DIR/../docs/circuit-constraints.md"
 
 echo "[compile] All circuits compiled. Artifacts in $BUILD_DIR"
