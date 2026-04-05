@@ -79,14 +79,14 @@ contract Poseidra is MerkleTree {
 
     /// @notice Withdraw using a ZK proof of Merkle inclusion.
     ///
-    /// @param proof           Serialised PLONK proof.
+    /// @param proof           PLONK proof encoded as 24 field elements (snarkjs format).
     /// @param root            Merkle root the proof was generated against.
     /// @param nullifierHash   Poseidon(DOMAIN_NULLIFIER, nullifier, chain_id, contract).
     /// @param recipient       Address to receive the withdrawn funds.
     /// @param relayer         Relayer address (receives `fee`). Zero for direct withdrawal.
     /// @param fee             Fee paid to the relayer, deducted from DENOMINATION.
     function withdraw(
-        bytes calldata proof,
+        uint256[24] calldata proof,
         bytes32 root,
         bytes32 nullifierHash,
         address payable recipient,

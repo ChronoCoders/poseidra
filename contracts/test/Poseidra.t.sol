@@ -4,8 +4,7 @@ pragma solidity ^0.8.24;
 import {Test} from "forge-std/Test.sol";
 import {Poseidra} from "../src/Poseidra.sol";
 import {ComplianceRegistry} from "../src/ComplianceRegistry.sol";
-import {VerifierStub} from "../src/Verifier.sol";
-import {PoseidonT3} from "../src/lib/Poseidon.sol";
+import {VerifierStub, IVerifier} from "../src/Verifier.sol";
 
 contract PoseidraTest is Test {
     Poseidra poseidra;
@@ -102,6 +101,9 @@ contract PoseidraTest is Test {
 
     // ── Withdraw ──────────────────────────────────────────────────────────────
 
+    /// @dev Returns an all-zero PLONK proof array (valid for VerifierStub).
+    function _emptyProof() internal pure returns (uint256[24] memory p) {}
+
     function _doDeposit() internal returns (bytes32 root) {
         vm.prank(alice);
         poseidra.deposit{value: DENOM}(COMMITMENT_1);
@@ -113,8 +115,7 @@ contract PoseidraTest is Test {
         uint256 aliceBefore = alice.balance;
 
         vm.prank(alice);
-        poseidra.withdraw(
-            bytes("proof"),
+        poseidra.withdraw(_emptyProof(),
             root,
             NULLIFIER_HASH,
             payable(alice),
@@ -133,8 +134,7 @@ contract PoseidraTest is Test {
         uint256 relayerBefore = relayer.balance;
 
         vm.prank(alice);
-        poseidra.withdraw(
-            bytes("proof"),
+        poseidra.withdraw(_emptyProof(),
             root,
             NULLIFIER_HASH,
             payable(alice),
@@ -152,8 +152,7 @@ contract PoseidraTest is Test {
         vm.prank(alice);
         vm.expectEmit(true, true, false, true);
         emit Poseidra.Withdrawal(NULLIFIER_HASH, alice, address(0), 0);
-        poseidra.withdraw(
-            bytes("proof"),
+        poseidra.withdraw(_emptyProof(),
             root,
             NULLIFIER_HASH,
             payable(alice),
@@ -166,10 +165,10 @@ contract PoseidraTest is Test {
         bytes32 root = _doDeposit();
 
         vm.startPrank(alice);
-        poseidra.withdraw(bytes("proof"), root, NULLIFIER_HASH, payable(alice), payable(address(0)), 0);
+        poseidra.withdraw(_emptyProof(), root, NULLIFIER_HASH, payable(alice), payable(address(0)), 0);
 
         vm.expectRevert("Poseidra: note already spent");
-        poseidra.withdraw(bytes("proof"), root, NULLIFIER_HASH, payable(alice), payable(address(0)), 0);
+        poseidra.withdraw(_emptyProof(), root, NULLIFIER_HASH, payable(alice), payable(address(0)), 0);
         vm.stopPrank();
     }
 
@@ -190,8 +189,7 @@ contract PoseidraTest is Test {
 
         vm.prank(alice);
         vm.expectRevert("Poseidra: unknown or expired root");
-        poseidra.withdraw(
-            bytes("proof"), depositRoot, NULLIFIER_HASH, payable(alice), payable(address(0)), 0
+        poseidra.withdraw(_emptyProof(), depositRoot, NULLIFIER_HASH, payable(alice), payable(address(0)), 0
         );
     }
 
@@ -200,7 +198,7 @@ contract PoseidraTest is Test {
 
         vm.prank(alice);
         vm.expectRevert("Poseidra: fee exceeds denomination");
-        poseidra.withdraw(bytes("proof"), root, NULLIFIER_HASH, payable(alice), payable(relayer), DENOM);
+        poseidra.withdraw(_emptyProof(), root, NULLIFIER_HASH, payable(alice), payable(relayer), DENOM);
     }
 
     function test_RevertIf_ZeroRecipient() public {
@@ -208,7 +206,7 @@ contract PoseidraTest is Test {
 
         vm.prank(alice);
         vm.expectRevert("Poseidra: zero recipient");
-        poseidra.withdraw(bytes("proof"), root, NULLIFIER_HASH, payable(address(0)), payable(address(0)), 0);
+        poseidra.withdraw(_emptyProof(), root, NULLIFIER_HASH, payable(address(0)), payable(address(0)), 0);
     }
 
     function test_IsSpent_ReturnsFalseBeforeWithdraw() public view {
@@ -216,41 +214,45 @@ contract PoseidraTest is Test {
     }
 
     // ── Poseidon cross-verification ───────────────────────────────────────────
-    // These tests verify that PoseidonT3 in Solidity matches the Rust prover and
-    // circomlib. Fill in expected values from:
-    //   cargo test generate_test_vector -- --nocapture   (Rust)
-    //   cd circuits && node -e "const {buildPoseidon}=require('circomlibjs'); ..."
+    // Tests use PoseidonExposer (defined below) to call the assembly hasher.
+    // Expected values verified against circomlibjs:
+    //   buildPoseidon().then(p => console.log(p.F.toString(p([1n,2n]))))
+    //   → 7853200120776062878684798364095072458815029376092732009249414926327459813530
 
-    function test_PoseidonVectors_SelfConsistency() public pure {
-        // Poseidon(1, 2) must be deterministic
-        uint256 h1 = PoseidonT3.hash(1, 2);
-        uint256 h2 = PoseidonT3.hash(1, 2);
+    PoseidonExposer poseidonExposer;
+
+    function _setUpExposer() internal {
+        if (address(poseidonExposer) == address(0)) {
+            poseidonExposer = new PoseidonExposer(address(verifier), address(registry), DENOM);
+        }
+    }
+
+    function test_PoseidonVectors_SelfConsistency() public {
+        _setUpExposer();
+        uint256 h1 = poseidonExposer.poseidon2(1, 2);
+        uint256 h2 = poseidonExposer.poseidon2(1, 2);
         assertEq(h1, h2);
     }
 
-    function test_PoseidonVectors_OrderMatters() public pure {
-        uint256 h1 = PoseidonT3.hash(1, 2);
-        uint256 h2 = PoseidonT3.hash(2, 1);
+    function test_PoseidonVectors_OrderMatters() public {
+        _setUpExposer();
+        uint256 h1 = poseidonExposer.poseidon2(1, 2);
+        uint256 h2 = poseidonExposer.poseidon2(2, 1);
         assertTrue(h1 != h2);
     }
 
-    function test_PoseidonVectors_OutputInField() public pure {
+    function test_PoseidonVectors_OutputInField() public {
+        _setUpExposer();
         uint256 P = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
-        uint256 h = PoseidonT3.hash(1, 2);
+        uint256 h = poseidonExposer.poseidon2(1, 2);
         assertLt(h, P);
     }
 
-    /// @dev Fill `expected` from Rust/circomlib once cross-client verification completes.
-    function test_PoseidonVectors_CrossClient() public pure {
-        uint256 h = PoseidonT3.hash(1, 2);
-        // TODO: replace 0 with circomlib output for Poseidon([1, 2])
-        // Run: cargo test generate_test_vector -- --nocapture
-        // Then: cd circuits && node -e "const {buildPoseidon}=require('circomlibjs'); buildPoseidon().then(p => console.log(p.F.toString(p([1n,2n]))))"
-        uint256 expected = 0; // placeholder — must be replaced before Phase 2 is complete
-        if (expected != 0) {
-            assertEq(h, expected);
-        }
-        // When expected == 0, this test passes but signals cross-verification is pending.
+    /// @dev Cross-client vector: circomlibjs Poseidon([1, 2]) output confirmed.
+    function test_PoseidonVectors_CrossClient() public {
+        _setUpExposer();
+        uint256 h = poseidonExposer.poseidon2(1, 2);
+        assertEq(h, 7853200120776062878684798364095072458815029376092732009249414926327459813530);
     }
 
     // ── Fuzz ──────────────────────────────────────────────────────────────────
@@ -270,13 +272,13 @@ contract PoseidraTest is Test {
 
         uint256 balBefore = user.balance;
         vm.prank(user);
-        local.withdraw(bytes("proof"), root, nullifier, payable(user), payable(address(0)), 0);
+        local.withdraw(_emptyProof(), root, nullifier, payable(user), payable(address(0)), 0);
 
         assertEq(user.balance, balBefore + denomination);
         assertTrue(local.isSpent(nullifier));
     }
 
-    function testFuzz_InvalidProofIsRejected(bytes calldata badProof) public {
+    function testFuzz_InvalidProofIsRejected(uint256[24] calldata badProof) public {
         // Deploy with a real-but-rejecting verifier
         RejectingVerifier rejectVerifier = new RejectingVerifier();
         Poseidra local = new Poseidra(address(rejectVerifier), address(registry), DENOM);
@@ -293,8 +295,17 @@ contract PoseidraTest is Test {
 }
 
 /// @dev Verifier that always rejects — used for invalid proof fuzz tests.
-contract RejectingVerifier {
-    function verifyProof(bytes calldata, uint256[5] calldata) external pure returns (bool) {
+contract RejectingVerifier is IVerifier {
+    function verifyProof(uint256[24] calldata, uint256[5] calldata) external pure returns (bool) {
         return false;
+    }
+}
+
+/// @dev Exposes _poseidon2 for cross-client vector tests.
+contract PoseidonExposer is Poseidra {
+    constructor(address v, address r, uint256 d) Poseidra(v, r, d) {}
+
+    function poseidon2(uint256 a, uint256 b) external view returns (uint256) {
+        return _poseidon2(a, b);
     }
 }

@@ -2,25 +2,45 @@
 
 Populated by `scripts/compile.sh`. Run `bash scripts/compile.sh` to update.
 
-## Target
+## Measured (withdraw.circom, depth=20)
 
-| Circuit     | Target      | Status  |
-|-------------|-------------|---------|
-| withdraw    | 2,300–2,600 | pending |
+| Metric                 | Value  |
+|------------------------|--------|
+| Curve                  | BN-128 |
+| Non-linear constraints | 5,413  |
+| Wires                  | 5,439  |
+| Private inputs         | 42     |
+| Public inputs          | 5      |
+| Labels                 | 17,693 |
+| PLONK constraints      | 59,096 |
+| ptau required          | ≥ 16 (2^16 = 65,536 ≥ 59,096) |
 
-## Expected Breakdown (withdraw.circom, depth=20)
+## Public Signal Order
 
-| Component                         | Approx Constraints |
-|-----------------------------------|--------------------|
-| Commitment: Poseidon(3 inputs)    | ~340               |
-| Nullifier hash: Poseidon(4 inputs)| ~430               |
-| Merkle path: 20 × Poseidon(2)     | ~20 × 90 = ~1,800  |
-| Boolean checks (20 pathIndices)   | 20                 |
-| **Total**                         | **~2,590**         |
+Circuit output order (must match Solidity verifier and Rust prover):
 
-Poseidon(n) internal state size t = n+1. Constraint count per call scales with t.
-Actual counts must be measured and recorded here after each compile.
+```
+pubSignals[0] = root
+pubSignals[1] = nullifier_hash
+pubSignals[2] = recipient
+pubSignals[3] = chain_id
+pubSignals[4] = contract_address
+```
 
-## Recorded Counts
+## Component Breakdown
 
-<!-- snarkjs r1cs info output appended here by compile.sh -->
+| Component                               | Approx Constraints |
+|-----------------------------------------|--------------------|
+| Commitment: Poseidon(domain, s, n)      | ~270 (t=4)         |
+| Nullifier hash: Poseidon(domain,n,c,a)  | ~370 (t=5)         |
+| Merkle path: 20 × Poseidon(l, r)        | 20 × ~240 = ~4,800 |
+| Boolean checks (20 pathIndices)         | ~20                |
+| **Total (measured)**                    | **5,413**          |
+
+## Notes
+
+- Initial estimate (2,300–2,600) was too low. circomlib Poseidon with t=3 uses ~240
+  constraints/call (full + partial rounds × 2 multiplications each), not ~90.
+- ptau 16 used for development. For production, replace with a public ceremony ptau
+  (Hermez perpetual powers of tau, ptau 16 or higher).
+- PLONK pads to next power of 2: 59,096 → 65,536 = 2^16.

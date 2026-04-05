@@ -33,32 +33,26 @@ fn zero_path() -> ([Fr; TREE_DEPTH], [bool; TREE_DEPTH]) {
 //   "
 
 #[test]
-#[ignore = "populate expected values from circomlib before enabling"]
 fn cross_client_poseidon2_matches_circomlib() {
     let got = poseidon2(Fr::from(1u64), Fr::from(2u64)).unwrap();
-    // Replace with circomlib output for p([1n, 2n]):
-    let expected = "TODO_INSERT_CIRCOMLIB_OUTPUT";
     assert_eq!(
         fr_to_decimal(got),
-        expected,
+        "7853200120776062878684798364095072458815029376092732009249414926327459813530",
         "Poseidon2 mismatch vs circomlib"
     );
 }
 
 #[test]
-#[ignore = "populate expected values from circomlib before enabling"]
 fn cross_client_poseidon3_matches_circomlib() {
     let got = poseidon3(Fr::from(1u64), Fr::from(2u64), Fr::from(3u64)).unwrap();
-    let expected = "TODO_INSERT_CIRCOMLIB_OUTPUT";
     assert_eq!(
         fr_to_decimal(got),
-        expected,
+        "6542985608222806190361240322586112750744169038454362455181422643027100751666",
         "Poseidon3 mismatch vs circomlib"
     );
 }
 
 #[test]
-#[ignore = "populate expected values from circomlib before enabling"]
 fn cross_client_poseidon4_matches_circomlib() {
     let got = poseidon4(
         Fr::from(1u64),
@@ -67,29 +61,25 @@ fn cross_client_poseidon4_matches_circomlib() {
         Fr::from(4u64),
     )
     .unwrap();
-    let expected = "TODO_INSERT_CIRCOMLIB_OUTPUT";
     assert_eq!(
         fr_to_decimal(got),
-        expected,
+        "18821383157269793795438455681495246036402687001665670618754263018637548127333",
         "Poseidon4 mismatch vs circomlib"
     );
 }
 
 #[test]
-#[ignore = "populate expected values from circomlib before enabling"]
 fn cross_client_commitment_matches_circomlib() {
     let commitment = poseidon3(DOMAIN_COMMITMENT, Fr::from(1u64), Fr::from(2u64)).unwrap();
     // circomlib: p([DOMAIN_COMMITMENT, 1n, 2n])
-    let expected = "TODO_INSERT_CIRCOMLIB_OUTPUT";
     assert_eq!(
         fr_to_decimal(commitment),
-        expected,
+        "3073948565060944732767652572983061717417199761455075975621368839757913951698",
         "commitment mismatch vs circomlib"
     );
 }
 
 #[test]
-#[ignore = "populate expected values from circomlib before enabling"]
 fn cross_client_nullifier_hash_matches_circomlib() {
     let nh = poseidon4(
         DOMAIN_NULLIFIER,
@@ -99,10 +89,9 @@ fn cross_client_nullifier_hash_matches_circomlib() {
     )
     .unwrap();
     // circomlib: p([DOMAIN_NULLIFIER, 2n, 1n, 54321n])
-    let expected = "TODO_INSERT_CIRCOMLIB_OUTPUT";
     assert_eq!(
         fr_to_decimal(nh),
-        expected,
+        "15673897871357144688463852956459858965792034609705466254389612987379294705967",
         "nullifier_hash mismatch vs circomlib"
     );
 }
@@ -202,7 +191,7 @@ fn merkle_path_with_nonzero_siblings_changes_root() {
 // Require: scripts/compile.sh completed, NODE_PATH / npx available.
 
 #[test]
-#[ignore = "requires circuit artifacts from scripts/compile.sh"]
+#[ignore = "slow — run with: cargo test full_proof -- --include-ignored"]
 fn full_proof_generation_and_local_verify() {
     use poseidra_prover::{generate_proof, ProvingKey};
     use std::path::Path;
@@ -237,7 +226,7 @@ fn full_proof_generation_and_local_verify() {
 }
 
 #[test]
-#[ignore = "requires circuit artifacts from scripts/compile.sh"]
+#[ignore = "slow — run with: cargo test invalid_witness -- --include-ignored"]
 fn invalid_witness_proof_is_rejected() {
     use poseidra_prover::prover::{prove, verify_locally};
     use poseidra_prover::{ProvingKey, WitnessInput};

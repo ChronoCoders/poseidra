@@ -3,8 +3,7 @@ set -euo pipefail
 
 CIRCUITS_DIR="$(cd "$(dirname "$0")/../circuits" && pwd)"
 BUILD_DIR="$(cd "$(dirname "$0")/.." && pwd)/build/circuits"
-PTAU="$BUILD_DIR/powersOfTau28_hez_final_18.ptau"
-PTAU_URL="https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_18.ptau"
+PTAU="$BUILD_DIR/pot16_final.ptau"
 
 mkdir -p "$BUILD_DIR"
 cd "$CIRCUITS_DIR"
@@ -15,10 +14,17 @@ if [ ! -d node_modules ]; then
     npm install
 fi
 
-# Download Powers of Tau if not present (Hermez ceremony, no per-circuit trusted setup)
+# Generate Powers of Tau locally if not present.
+# ptau 16 supports up to 2^16 = 65536 constraints — well above our ~2600 target.
+# For production, replace with a ceremony ptau (e.g. Hermez perpetual powers of tau).
 if [ ! -f "$PTAU" ]; then
-    echo "[compile] Downloading Powers of Tau..."
-    curl -Lo "$PTAU" "$PTAU_URL"
+    echo "[compile] Generating local Powers of Tau (ptau 16)..."
+    npx snarkjs powersoftau new bn128 16 "$BUILD_DIR/pot16_0000.ptau" -v
+    npx snarkjs powersoftau contribute "$BUILD_DIR/pot16_0000.ptau" "$BUILD_DIR/pot16_0001.ptau" \
+        --name="poseidra-dev" -e="poseidra dev entropy $(date +%s)"
+    npx snarkjs powersoftau prepare phase2 "$BUILD_DIR/pot16_0001.ptau" "$PTAU" -v
+    rm -f "$BUILD_DIR/pot16_0000.ptau" "$BUILD_DIR/pot16_0001.ptau"
+    echo "[compile] Powers of Tau ready: $PTAU"
 fi
 
 compile_circuit() {
@@ -33,7 +39,7 @@ compile_circuit() {
         --wasm \
         --sym \
         --output "$out" \
-        -l "$CIRCUITS_DIR/../node_modules"
+        -l "$CIRCUITS_DIR/node_modules"
 
     local constraints
     constraints=$(grep "^constraints:" "$out/${name}.r1cs.stats" 2>/dev/null || \

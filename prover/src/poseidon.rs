@@ -113,23 +113,21 @@ mod tests {
         assert_ne!(c, n, "Different domains must produce different hashes");
     }
 
-    // Cross-client test vectors — fill in after running circomlib reference.
-    // Format: (inputs, expected_decimal_string)
-    // Run `cargo test cross_client -- --nocapture` after populating.
     #[test]
-    #[ignore = "populate expected values from circomlib before enabling"]
     fn cross_client_poseidon2() {
         let got = poseidon2(Fr::from(1u64), Fr::from(2u64)).unwrap();
-        // expected = circomlib Poseidon([1, 2]) output as decimal string
-        let expected_decimal = "TODO_INSERT_CIRCOMLIB_OUTPUT";
-        assert_eq!(got.to_string(), expected_decimal);
+        assert_eq!(
+            got.to_string(),
+            "7853200120776062878684798364095072458815029376092732009249414926327459813530"
+        );
     }
 
     #[test]
-    #[ignore = "populate expected values from circomlib before enabling"]
     fn cross_client_poseidon3() {
         let got = poseidon3(Fr::from(1u64), Fr::from(2u64), Fr::from(3u64)).unwrap();
-        let expected_decimal = "TODO_INSERT_CIRCOMLIB_OUTPUT";
-        assert_eq!(got.to_string(), expected_decimal);
+        assert_eq!(
+            got.to_string(),
+            "6542985608222806190361240322586112750744169038454362455181422643027100751666"
+        );
     }
 }
