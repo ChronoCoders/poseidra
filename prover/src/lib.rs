@@ -18,7 +18,7 @@ pub mod witness;
 
 pub use errors::{ParameterError, ProofError, WitnessError};
 pub use prover::{Proof, ProvingKey};
-pub use witness::{WitnessInput, compute_merkle_root, fr_to_decimal, hex_to_fr};
+pub use witness::{compute_merkle_root, fr_to_decimal, hex_to_fr, WitnessInput};
 
 use ark_bn254::Fr;
 /// Generate a PLONK withdrawal proof.

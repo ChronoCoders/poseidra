@@ -20,21 +20,24 @@ use crate::errors::WitnessError;
 /// Used for commitment: Poseidon(domain_commitment, secret, nullifier).
 pub fn poseidon3(a: Fr, b: Fr, c: Fr) -> Result<Fr, WitnessError> {
     let mut h = Poseidon::<Fr>::new_circom(3).map_err(|e| WitnessError::Poseidon(e.to_string()))?;
-    h.hash(&[a, b, c]).map_err(|e| WitnessError::Poseidon(e.to_string()))
+    h.hash(&[a, b, c])
+        .map_err(|e| WitnessError::Poseidon(e.to_string()))
 }
 
 /// Hash 4 field elements: Poseidon(a, b, c, d).
 /// Used for nullifier hash: Poseidon(domain_nullifier, nullifier, chain_id, contract_address).
 pub fn poseidon4(a: Fr, b: Fr, c: Fr, d: Fr) -> Result<Fr, WitnessError> {
     let mut h = Poseidon::<Fr>::new_circom(4).map_err(|e| WitnessError::Poseidon(e.to_string()))?;
-    h.hash(&[a, b, c, d]).map_err(|e| WitnessError::Poseidon(e.to_string()))
+    h.hash(&[a, b, c, d])
+        .map_err(|e| WitnessError::Poseidon(e.to_string()))
 }
 
 /// Hash 2 field elements: Poseidon(left, right).
 /// Used for all Merkle tree node hashing.
 pub fn poseidon2(left: Fr, right: Fr) -> Result<Fr, WitnessError> {
     let mut h = Poseidon::<Fr>::new_circom(2).map_err(|e| WitnessError::Poseidon(e.to_string()))?;
-    h.hash(&[left, right]).map_err(|e| WitnessError::Poseidon(e.to_string()))
+    h.hash(&[left, right])
+        .map_err(|e| WitnessError::Poseidon(e.to_string()))
 }
 
 #[cfg(test)]
@@ -65,8 +68,20 @@ mod tests {
 
     #[test]
     fn poseidon4_is_deterministic() {
-        let h1 = poseidon4(Fr::from(1u64), Fr::from(2u64), Fr::from(3u64), Fr::from(4u64)).unwrap();
-        let h2 = poseidon4(Fr::from(1u64), Fr::from(2u64), Fr::from(3u64), Fr::from(4u64)).unwrap();
+        let h1 = poseidon4(
+            Fr::from(1u64),
+            Fr::from(2u64),
+            Fr::from(3u64),
+            Fr::from(4u64),
+        )
+        .unwrap();
+        let h2 = poseidon4(
+            Fr::from(1u64),
+            Fr::from(2u64),
+            Fr::from(3u64),
+            Fr::from(4u64),
+        )
+        .unwrap();
         assert_eq!(h1, h2);
     }
 
@@ -81,7 +96,10 @@ mod tests {
     fn poseidon_output_differs_on_different_inputs() {
         let h1 = poseidon2(Fr::from(1u64), Fr::from(2u64)).unwrap();
         let h2 = poseidon2(Fr::from(2u64), Fr::from(1u64)).unwrap();
-        assert_ne!(h1, h2, "Poseidon must not be commutative for ordered inputs");
+        assert_ne!(
+            h1, h2,
+            "Poseidon must not be commutative for ordered inputs"
+        );
     }
 
     #[test]

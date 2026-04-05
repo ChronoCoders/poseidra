@@ -54,13 +54,11 @@ mod tests {
 
         // Padded to 64 hex chars (32 bytes)
         assert_eq!(
-            commitment_hex,
-            "0e2b9afab83eb22667534fa5a9f05318662a0779bec0ed43e9f3509bda5ca9dc",
+            commitment_hex, "0e2b9afab83eb22667534fa5a9f05318662a0779bec0ed43e9f3509bda5ca9dc",
             "DOMAIN_COMMITMENT hex mismatch — cross-check with circuits/constants.circom"
         );
         assert_eq!(
-            nullifier_hex,
-            "106b02b60c19bea639871dc2ce12726a638d83663a6c74fd976d1e3358da7f28",
+            nullifier_hex, "106b02b60c19bea639871dc2ce12726a638d83663a6c74fd976d1e3358da7f28",
             "DOMAIN_NULLIFIER hex mismatch — cross-check with circuits/constants.circom"
         );
     }

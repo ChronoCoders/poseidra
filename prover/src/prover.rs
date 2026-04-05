@@ -75,7 +75,11 @@ impl ProvingKey {
         }
 
         debug!("loaded proving key from {}", base.display());
-        Ok(Self { zkey_path, wasm_path, gen_witness_js })
+        Ok(Self {
+            zkey_path,
+            wasm_path,
+            gen_witness_js,
+        })
     }
 }
 
@@ -155,7 +159,11 @@ pub fn prove(key: &ProvingKey, witness: &WitnessInput) -> Result<Proof, ProofErr
         );
     }
 
-    Ok(Proof { proof_json, public_json, proving_ms })
+    Ok(Proof {
+        proof_json,
+        public_json,
+        proving_ms,
+    })
 }
 
 /// Verify a proof against the verification key (for testing / CI).

@@ -1,7 +1,7 @@
 use ark_bn254::Fr;
 use ark_ff::PrimeField;
-use std::str::FromStr;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 use crate::domain::{DOMAIN_COMMITMENT, DOMAIN_NULLIFIER, TREE_DEPTH};
 use crate::errors::WitnessError;
@@ -101,7 +101,11 @@ impl WitnessInput {
         let input = CircomInput {
             secret: fr_to_decimal(self.secret),
             nullifier: fr_to_decimal(self.nullifier),
-            path_elements: self.path_elements.iter().map(|e| fr_to_decimal(*e)).collect(),
+            path_elements: self
+                .path_elements
+                .iter()
+                .map(|e| fr_to_decimal(*e))
+                .collect(),
             path_indices: self.path_indices.iter().map(|&b| b as u8).collect(),
             root: fr_to_decimal(self.root),
             nullifier_hash: fr_to_decimal(self.nullifier_hash),
@@ -198,13 +202,12 @@ mod tests {
         .expect("build should succeed");
 
         // Verify self-consistency: re-computing root from the witness must match.
-        let recomputed_root =
-            compute_merkle_root(
-                poseidon3(DOMAIN_COMMITMENT, secret, nullifier).unwrap(),
-                &w.path_elements,
-                &w.path_indices,
-            )
-            .unwrap();
+        let recomputed_root = compute_merkle_root(
+            poseidon3(DOMAIN_COMMITMENT, secret, nullifier).unwrap(),
+            &w.path_elements,
+            &w.path_indices,
+        )
+        .unwrap();
         assert_eq!(w.root, recomputed_root);
     }
 
@@ -256,9 +259,10 @@ mod tests {
         println!("=== Test Vector (for cross-client verification) ===");
         println!("secret:           1");
         println!("nullifier:        2");
-        println!("commitment:       {}", fr_to_decimal(
-            poseidon3(DOMAIN_COMMITMENT, secret, nullifier).unwrap()
-        ));
+        println!(
+            "commitment:       {}",
+            fr_to_decimal(poseidon3(DOMAIN_COMMITMENT, secret, nullifier).unwrap())
+        );
         println!("nullifier_hash:   {}", fr_to_decimal(w.nullifier_hash));
         println!("root:             {}", fr_to_decimal(w.root));
         println!("chain_id:         1");
