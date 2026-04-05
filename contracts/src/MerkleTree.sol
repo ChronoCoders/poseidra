@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {PoseidonT3} from "./lib/Poseidon.sol";
+import {PoseidonHasher} from "./lib/PoseidonHasher.sol";
 
 /// @title MerkleTree
 /// @notice Append-only binary Merkle tree using Poseidon hashing.
 ///         Depth is fixed at 20 (up to 2^20 = 1,048,576 leaves).
 ///         Stores the last ROOT_HISTORY_SIZE roots to allow proof generation
 ///         against a recent but not necessarily current root.
-contract MerkleTree {
+contract MerkleTree is PoseidonHasher {
     uint256 public constant DEPTH = 20;
     uint256 public constant ROOT_HISTORY_SIZE = 100;
     uint256 public constant FIELD_SIZE =
@@ -29,12 +29,12 @@ contract MerkleTree {
 
     event LeafInserted(bytes32 indexed commitment, uint256 leafIndex, uint256 timestamp);
 
-    constructor() {
+    constructor() PoseidonHasher() {
         // Zero leaf: keccak256("poseidra") mod FIELD_SIZE
         uint256 z = uint256(keccak256("poseidra")) % FIELD_SIZE;
         zeros[0] = z;
         for (uint256 i = 1; i < DEPTH; i++) {
-            z = PoseidonT3.hash(z, z);
+            z = _poseidon2(z, z);
             zeros[i] = z;
         }
 
@@ -70,7 +70,7 @@ contract MerkleTree {
                 left = filledSubtrees[i];
                 right = currentLevelHash;
             }
-            currentLevelHash = PoseidonT3.hash(left, right);
+            currentLevelHash = _poseidon2(left, right);
             currentIndex >>= 1;
         }
 
@@ -108,7 +108,7 @@ contract MerkleTree {
     function _computeRoot() internal view returns (bytes32) {
         // On construction the tree is all zeros; root = zeros[DEPTH-1] hashed once more.
         uint256 r = zeros[DEPTH - 1];
-        r = PoseidonT3.hash(r, r);
+        r = _poseidon2(r, r);
         return bytes32(r);
     }
 }
