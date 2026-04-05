@@ -220,7 +220,7 @@ fn full_proof_generation_and_local_verify() {
     assert!(proof.proving_ms > 0, "proving time must be recorded");
     println!("Proving time: {} ms", proof.proving_ms);
 
-    let ok = poseidra_prover::prover::verify_locally(&vkey_path, &proof)
+    let ok = poseidra_prover::prover::verify_locally(&key.snarkjs_cli, &vkey_path, &proof)
         .expect("verify call must succeed");
     assert!(ok, "proof must verify against local vkey");
 }
@@ -261,7 +261,7 @@ fn invalid_witness_proof_is_rejected() {
     match result {
         Err(_) => { /* expected: witness generator rejects inconsistent inputs */ }
         Ok(proof) => {
-            let ok = verify_locally(&vkey_path, &proof).unwrap();
+            let ok = verify_locally(&key.snarkjs_cli, &vkey_path, &proof).unwrap();
             assert!(!ok, "tampered witness must not produce a valid proof");
         }
     }

@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
 
+
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 
@@ -38,6 +39,9 @@ pub struct ProvingKey {
     pub wasm_path: PathBuf,
     /// Path to the witness generator JS wrapper.
     pub gen_witness_js: PathBuf,
+    /// Path to the local snarkjs CLI (`circuits/node_modules/snarkjs/cli.js`).
+    /// Using `node <cli.js>` avoids `npx` network fetches and `.cmd` shell issues on Windows.
+    pub snarkjs_cli: PathBuf,
 }
 
 impl ProvingKey {
@@ -45,12 +49,14 @@ impl ProvingKey {
     ///
     /// Expected layout:
     /// ```text
-    /// build_dir/
+    /// build_dir/                           (e.g. build/circuits)
     ///   withdraw/
     ///     withdraw.zkey
     ///     withdraw_js/
     ///       withdraw.wasm
     ///       generate_witness.js
+    /// <project_root>/
+    ///   circuits/node_modules/snarkjs/cli.js
     /// ```
     pub fn load(build_dir: &Path) -> Result<Self, ParameterError> {
         let base = build_dir.join("withdraw");
@@ -58,10 +64,28 @@ impl ProvingKey {
         let wasm_path = base.join("withdraw_js").join("withdraw.wasm");
         let gen_witness_js = base.join("withdraw_js").join("generate_witness.js");
 
+        // Derive project root: build_dir is <root>/build/circuits, so root = ../../
+        let project_root = build_dir
+            .parent()
+            .and_then(|p| p.parent())
+            .ok_or_else(|| ParameterError::Io {
+                path: build_dir.display().to_string(),
+                source: std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "cannot derive project root from build_dir",
+                ),
+            })?;
+        let snarkjs_cli = project_root
+            .join("circuits")
+            .join("node_modules")
+            .join("snarkjs")
+            .join("cli.js");
+
         for (label, p) in [
             ("zkey", &zkey_path),
             ("wasm", &wasm_path),
             ("generate_witness.js", &gen_witness_js),
+            ("snarkjs cli.js", &snarkjs_cli),
         ] {
             if !p.exists() {
                 return Err(ParameterError::Io {
@@ -79,6 +103,7 @@ impl ProvingKey {
             zkey_path,
             wasm_path,
             gen_witness_js,
+            snarkjs_cli,
         })
     }
 }
@@ -122,11 +147,11 @@ pub fn prove(key: &ProvingKey, witness: &WitnessInput) -> Result<Proof, ProofErr
     // 3. Generate PLONK proof
     let t0 = Instant::now();
 
-    let prove_status = Command::new("npx")
+    let prove_status = Command::new("node")
         .env_clear()
         .env("PATH", std::env::var("PATH").unwrap_or_default())
+        .arg(&key.snarkjs_cli)
         .args([
-            "snarkjs",
             "plonk",
             "prove",
             key.zkey_path.to_str().unwrap(),
@@ -168,7 +193,11 @@ pub fn prove(key: &ProvingKey, witness: &WitnessInput) -> Result<Proof, ProofErr
 
 /// Verify a proof against the verification key (for testing / CI).
 /// Production verification happens on-chain via Verifier.sol.
-pub fn verify_locally(vkey_path: &Path, proof: &Proof) -> Result<bool, ProofError> {
+pub fn verify_locally(
+    snarkjs_cli: &Path,
+    vkey_path: &Path,
+    proof: &Proof,
+) -> Result<bool, ProofError> {
     let tmp = tempdir()?;
     let proof_path = tmp.join("proof.json");
     let public_path = tmp.join("public.json");
@@ -178,11 +207,11 @@ pub fn verify_locally(vkey_path: &Path, proof: &Proof) -> Result<bool, ProofErro
     std::fs::write(&public_path, &proof.public_json)
         .map_err(|e| ProofError::Generation(format!("write public: {e}")))?;
 
-    let status = Command::new("npx")
+    let status = Command::new("node")
         .env_clear()
         .env("PATH", std::env::var("PATH").unwrap_or_default())
+        .arg(snarkjs_cli)
         .args([
-            "snarkjs",
             "plonk",
             "verify",
             vkey_path.to_str().unwrap(),
