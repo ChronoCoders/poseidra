@@ -1,0 +1,26 @@
+[package]
+name    = "poseidra-prover"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# BN254 field arithmetic — used for witness computation and Poseidon
+ark-ff     = { version = "0.4", features = ["std"] }
+ark-bn254  = { version = "0.4", features = ["std"] }
+
+# Poseidon — circomlib-compatible BN254 Poseidon, same round constants + MDS
+light-poseidon = "0.2"
+
+# Serialisation — WitnessInput → circom JSON, Proof ↔ storage
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+hex         = "0.4"
+
+# Typed errors
+thiserror = "1"
+
+# Structured logging — no secret material may appear in output
+tracing = "0.1"
+
+[dev-dependencies]
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poseidra — Private Transactions. Proven Clean.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#080A0F; --bg-raised:#0D1018; --bg-card:#111520;
+  --border:#1E2535; --border-hi:#2C3650;
+  --gold:#C8A96E; --gold-dim:#8A7044;
+  --text:#E8EAF0; --text-muted:#8891A8; --text-dim:#4A5168;
+  --accent:#4A7DFF; --green:#2DD4AA; --red:#FF4A6A;
+}
+html { scroll-behavior: smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Instrument Sans',sans-serif; font-weight:300; line-height:1.7; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:999; opacity:0.4; }
+
+nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 4rem; height:72px; background:rgba(8,10,15,0.88); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+.nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.logo-mark { width:36px; height:36px; }
+.logo-mark svg { width:100%; height:100%; }
+.nav-wordmark { font-family:'DM Serif Display',serif; font-size:1.25rem; color:var(--text); letter-spacing:0.02em; }
+.nav-links { display:flex; align-items:center; gap:2.5rem; list-style:none; }
+.nav-links a { color:var(--text-muted); text-decoration:none; font-size:0.8rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; transition:color 0.2s; }
+.nav-links a:hover { color:var(--text); }
+.nav-cta { background:var(--gold) !important; color:#080A0F !important; padding:9px 22px !important; border-radius:2px; font-weight:600 !important; transition:background 0.2s !important; }
+.nav-cta:hover { background:#D4B87A !important; color:#080A0F !important; }
+
+.hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:120px 4rem 80px; position:relative; overflow:hidden; }
+.hero-bg { position:absolute; inset:0; background: radial-gradient(ellipse 70% 60% at 60% 40%, rgba(200,169,110,0.07) 0%, transparent 65%), radial-gradient(ellipse 50% 70% at 10% 80%, rgba(74,125,255,0.04) 0%, transparent 60%); }
+.hero-grid { position:absolute; inset:0; background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size:80px 80px; opacity:0.25; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%); }
+
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(200,169,110,0.08); border:1px solid rgba(200,169,110,0.2); padding:6px 14px; border-radius:100px; font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:var(--gold); text-transform:uppercase; margin-bottom:2.5rem; width:fit-content; opacity:0; animation:fadeUp 0.8s ease 0.1s forwards; position:relative; }
+.hero-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-title { font-family:'DM Serif Display',serif; font-size:clamp(3.2rem,7.5vw,7rem); line-height:1.02; letter-spacing:-0.03em; margin-bottom:2rem; max-width:850px; opacity:0; animation:fadeUp 0.8s ease 0.3s forwards; position:relative; }
+.hero-title em { font-style:italic; color:var(--gold); }
+.hero-sub { font-size:1.1rem; color:var(--text-muted); max-width:520px; line-height:1.8; margin-bottom:3rem; opacity:0; animation:fadeUp 0.8s ease 0.5s forwards; position:relative; }
+.hero-actions { display:flex; align-items:center; gap:1.5rem; opacity:0; animation:fadeUp 0.8s ease 0.7s forwards; position:relative; }
+
+.btn-primary { display:inline-flex; align-items:center; gap:10px; background:var(--gold); color:#080A0F; padding:15px 30px; border-radius:2px; font-size:0.82rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:background 0.2s,transform 0.2s; }
+.btn-primary:hover { background:#D4B87A; transform:translateY(-1px); }
+.btn-outline { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border-hi); color:var(--text-muted); padding:14px 28px; border-radius:2px; font-size:0.82rem; letter-spacing:0.08em; text-decoration:none; transition:border-color 0.2s,color 0.2s; }
+.btn-outline:hover { border-color:var(--text-dim); color:var(--text); }
+
+section { padding:100px 4rem; }
+.section-alt { background:var(--bg-raised); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.eyebrow { font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1.25rem; display:flex; align-items:center; gap:10px; }
+.eyebrow::before { content:''; display:block; width:20px; height:1px; background:var(--gold); }
+.section-title { font-family:'DM Serif Display',serif; font-size:clamp(2rem,3.5vw,3rem); line-height:1.1; margin-bottom:1.25rem; }
+.section-title em { color:var(--gold); font-style:italic; }
+.body-text { font-size:0.95rem; color:var(--text-muted); line-height:1.85; margin-bottom:1rem; max-width:520px; }
+
+.problem-layout { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.pain-cards { display:flex; flex-direction:column; gap:1px; }
+.pain-card { display:flex; align-items:flex-start; gap:20px; padding:24px 28px; background:var(--bg-card); border:1px solid var(--border); transition:border-color 0.3s; }
+.pain-card:hover { border-color:var(--border-hi); }
+.pain-icon { width:36px; height:36px; border-radius:2px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
+.pain-icon.red  { background:rgba(255,74,106,0.08); border:1px solid rgba(255,74,106,0.15); }
+.pain-icon.gold { background:rgba(200,169,110,0.08); border:1px solid rgba(200,169,110,0.15); }
+.pain-icon.blue { background:rgba(74,125,255,0.08); border:1px solid rgba(74,125,255,0.15); }
+.pain-title { font-size:0.88rem; font-weight:500; color:var(--text); margin-bottom:4px; }
+.pain-text  { font-size:0.8rem; color:var(--text-muted); line-height:1.6; }
+
+.steps { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:3rem; }
+.step { background:var(--bg-card); padding:36px 28px; }
+.step-num { font-family:'DM Serif Display',serif; font-size:3rem; color:var(--border); line-height:1; margin-bottom:1.25rem; transition:color 0.3s; }
+.step:hover .step-num { color:var(--border-hi); }
+.step-title { font-size:0.95rem; font-weight:500; color:var(--text); margin-bottom:0.6rem; }
+.step-text  { font-size:0.8rem; color:var(--text-muted); line-height:1.7; }
+
+.audience-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:3rem; }
+.audience-card { background:var(--bg-card); padding:36px 32px; transition:background 0.3s; }
+.audience-card:hover { background:#131824; }
+.audience-tag { font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:1.25rem; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.audience-title { font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--text); margin-bottom:0.75rem; line-height:1.2; }
+.audience-text  { font-size:0.83rem; color:var(--text-muted); line-height:1.75; margin-bottom:1.5rem; }
+.audience-points { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.audience-points li { font-size:0.8rem; color:var(--text-muted); display:flex; gap:10px; line-height:1.5; }
+.audience-points li::before { content:'→'; color:var(--gold); flex-shrink:0; }
+
+.diff-layout { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.diff-list { display:flex; flex-direction:column; }
+.diff-item { display:flex; gap:24px; align-items:flex-start; padding:28px 0; border-bottom:1px solid var(--border); }
+.diff-item:first-child { padding-top:0; }
+.diff-item:last-child { border-bottom:none; }
+.diff-check { width:22px; height:22px; border-radius:50%; background:rgba(45,212,170,0.1); border:1px solid rgba(45,212,170,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; font-size:0.7rem; color:var(--green); }
+.diff-title { font-size:0.92rem; font-weight:500; color:var(--text); margin-bottom:0.4rem; }
+.diff-text  { font-size:0.82rem; color:var(--text-muted); line-height:1.7; }
+
+.comparison-box { background:var(--bg-card); border:1px solid var(--border); overflow:hidden; }
+.comparison-header { display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--bg-raised); border-bottom:1px solid var(--border); }
+.comp-col-head { padding:14px 20px; font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); border-right:1px solid var(--border); }
+.comp-col-head:last-child { border-right:none; }
+.comp-col-head.hi { color:var(--gold); }
+.comp-row { display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid var(--border); }
+.comp-row:last-child { border-bottom:none; }
+.comp-cell { padding:14px 20px; font-size:0.78rem; color:var(--text-muted); border-right:1px solid var(--border); line-height:1.5; }
+.comp-cell:last-child { border-right:none; }
+.comp-cell.feature { color:var(--text); font-size:0.75rem; }
+.comp-cell.yes { color:var(--green); font-family:'DM Mono',monospace; font-size:0.72rem; }
+.comp-cell.no  { color:var(--text-dim); font-family:'DM Mono',monospace; font-size:0.72rem; }
+.comp-cell.pos { background:rgba(200,169,110,0.04); }
+
+.trust-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:3rem; }
+.trust-cell { background:var(--bg-card); padding:32px 28px; text-align:center; }
+.trust-value { font-family:'DM Serif Display',serif; font-size:2.5rem; color:var(--text); line-height:1; margin-bottom:0.5rem; }
+.trust-value em { color:var(--gold); font-style:normal; }
+.trust-label { font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.15em; color:var(--text-dim); text-transform:uppercase; }
+
+.waitlist-section { padding:120px 4rem; text-align:center; position:relative; overflow:hidden; }
+.waitlist-bg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 70% at 50% 50%, rgba(200,169,110,0.06) 0%, transparent 70%); }
+.waitlist-title { font-family:'DM Serif Display',serif; font-size:clamp(2.5rem,5vw,4.5rem); line-height:1.05; margin-bottom:1.25rem; position:relative; }
+.waitlist-title em { color:var(--gold); font-style:italic; }
+.waitlist-sub { font-size:1rem; color:var(--text-muted); max-width:460px; margin:0 auto 3rem; line-height:1.75; position:relative; }
+.waitlist-form { display:flex; gap:12px; max-width:440px; margin:0 auto; position:relative; }
+.waitlist-input { flex:1; background:var(--bg-card); border:1px solid var(--border-hi); color:var(--text); padding:14px 18px; font-family:'Instrument Sans',sans-serif; font-size:0.88rem; border-radius:2px; outline:none; transition:border-color 0.2s; }
+.waitlist-input:focus { border-color:var(--gold); }
+.waitlist-input::placeholder { color:var(--text-dim); }
+.waitlist-btn { background:var(--gold); color:#080A0F; border:none; padding:14px 24px; font-family:'Instrument Sans',sans-serif; font-size:0.8rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
+.waitlist-btn:hover { background:#D4B87A; }
+.waitlist-note { font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.1em; color:var(--text-dim); margin-top:1rem; position:relative; }
+
+footer { padding:60px 4rem; border-top:1px solid var(--border); display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; }
+.footer-brand p { font-size:0.82rem; color:var(--text-muted); line-height:1.7; max-width:280px; margin-top:0.75rem; }
+.footer-col-title { font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:1.25rem; }
+.footer-links { list-style:none; display:flex; flex-direction:column; gap:0.75rem; }
+.footer-links a { color:var(--text-muted); text-decoration:none; font-size:0.85rem; transition:color 0.2s; }
+.footer-links a:hover { color:var(--text); }
+.footer-bottom { padding:20px 4rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.footer-bottom p { font-family:'DM Mono',monospace; font-size:0.65rem; color:var(--text-dim); letter-spacing:0.1em; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease,transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none"><polygon points="18,3 33,12 33,24 18,33 3,24 3,12" stroke="#C8A96E" stroke-width="1" fill="none"/><polygon points="18,9 27,14.5 27,21.5 18,27 9,21.5 9,14.5" stroke="#C8A96E" stroke-width="0.5" fill="rgba(200,169,110,0.05)"/><circle cx="18" cy="18" r="3" fill="#C8A96E"/><line x1="18" y1="3" x2="18" y2="9" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/><line x1="18" y1="27" x2="18" y2="33" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/><line x1="3" y1="12" x2="9" y2="14.5" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/><line x1="27" y1="14.5" x2="33" y2="12" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/><line x1="3" y1="24" x2="9" y2="21.5" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/><line x1="27" y1="21.5" x2="33" y2="24" stroke="#C8A96E" stroke-width="0.5" opacity="0.5"/></svg>
+    </div>
+    <span class="nav-wordmark">Poseidra</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="architecture.html">How It Works</a></li>
+    <li><a href="compliance.html">Compliance</a></li>
+    <li><a href="research.html">Research</a></li>
+    <li><a href="docs.html">Docs</a></li>
+    <li><a href="#waitlist" class="nav-cta">Early Access</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-badge"><div class="hero-badge-dot"></div>Now in development · Open source</div>
+  <h1 class="hero-title">Your transactions.<br>Private. <em>Proven clean.</em></h1>
+  <p class="hero-sub">Poseidra lets you transact on-chain without exposing your strategy, your counterparties, or your portfolio — while mathematically proving your funds are legitimate to anyone who needs to verify.</p>
+  <div class="hero-actions">
+    <a href="#waitlist" class="btn-primary">Join Early Access <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a href="research.html" class="btn-outline">Read the Paper <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section-alt">
+  <div class="problem-layout reveal">
+    <div>
+      <div class="eyebrow">The Problem</div>
+      <h2 class="section-title">Blockchain is public.<br>Your strategy <em>shouldn't be.</em></h2>
+      <p class="body-text">Every on-chain transaction you make is visible to everyone — your competitors, front-runners, and analytics firms. And existing privacy solutions either offer no compliance story, or bolt one on as an afterthought.</p>
+      <p class="body-text">Exchanges block deposits from privacy protocols. Regulators scrutinize them. The tools that exist weren't built for institutions or serious traders.</p>
+    </div>
+    <div class="pain-cards">
+      <div class="pain-card">
+        <div class="pain-icon red">👁</div>
+        <div><div class="pain-title">Your positions are fully visible</div><div class="pain-text">Anyone can see your wallet, your size, your strategy. Chain analytics firms build profiles on every active address.</div></div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon gold">⚖️</div>
+        <div><div class="pain-title">Privacy tools don't pass compliance</div><div class="pain-text">Exchanges block withdrawals from mixers. Tornado Cash proved that privacy without compliance is a legal liability.</div></div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon blue">🔗</div>
+        <div><div class="pain-title">You can't prove your funds are clean</div><div class="pain-text">Even if your funds are legitimate, you can't selectively disclose that fact without revealing everything.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="reveal">
+    <div class="eyebrow">How It Works</div>
+    <h2 class="section-title">Deposit. Prove. Withdraw.</h2>
+    <p class="body-text">No one learns which deposit matches your withdrawal. But anyone can verify your funds are clean — without you revealing anything else.</p>
+  </div>
+  <div class="steps reveal">
+    <div class="step"><div class="step-num">01</div><div class="step-title">Deposit</div><div class="step-text">Send funds to the Poseidra contract with a cryptographic commitment. You hold the secret. Nobody else does.</div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-title">Wait</div><div class="step-text">As more deposits accumulate, your anonymity set grows. The larger the pool, the stronger your privacy.</div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-title">Prove</div><div class="step-text">Generate a zero-knowledge proof. It proves your deposit exists and your funds are clean — without linking withdrawal to deposit.</div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-title">Withdraw</div><div class="step-text">Receive funds at a new address via a relayer. On-chain: your proof is valid. Off-chain: your identity is private.</div></div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="section-alt">
+  <div class="reveal">
+    <div class="eyebrow">Who It's For</div>
+    <h2 class="section-title">Built for those with something to protect.</h2>
+  </div>
+  <div class="audience-grid reveal">
+    <div class="audience-card">
+      <div class="audience-tag">Institutions & Funds</div>
+      <div class="audience-title">Execute without telegraphing.</div>
+      <div class="audience-text">Large positions move markets when they're visible. Poseidra lets you transact without front-runners tracking your every move.</div>
+      <ul class="audience-points"><li>Hide position size from competitors</li><li>Prevent front-running on large trades</li><li>Generate compliance proofs for counterparties</li><li>Audit trail without public exposure</li></ul>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">DeFi Professionals</div>
+      <div class="audience-title">Trade without leaking alpha.</div>
+      <div class="audience-text">Your strategies are your edge. Public wallets give away your playbook to every copy-trader and MEV bot watching the mempool.</div>
+      <ul class="audience-points"><li>Protect yield strategies from copycats</li><li>Avoid MEV extraction on withdrawals</li><li>Separate wallet identities cleanly</li><li>Comply with exchange requirements</li></ul>
+    </div>
+    <div class="audience-card">
+      <div class="audience-tag">Developers & Protocols</div>
+      <div class="audience-title">Privacy as infrastructure.</div>
+      <div class="audience-text">Integrate Poseidra into your protocol or build on top of it. Full open-source stack, formal specification, production-grade Rust implementation.</div>
+      <ul class="audience-points"><li>Open source — fork, audit, contribute</li><li>Formal academic paper published</li><li>PLONK verifier integrates with any EVM</li><li>Compliance layer API for exchange integrations</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENTIATORS -->
+<section>
+  <div class="diff-layout">
+    <div class="reveal">
+      <div class="eyebrow">Why Poseidra</div>
+      <h2 class="section-title">What no other protocol offers.</h2>
+      <div class="diff-list" style="margin-top:2rem;">
+        <div class="diff-item"><div class="diff-check">✓</div><div><div class="diff-title">Compliance is core, not a patch</div><div class="diff-text">Every other protocol added compliance after launch. Poseidra is designed compliance-first — association and exclusion set proofs are part of the base architecture.</div></div></div>
+        <div class="diff-item"><div class="diff-check">✓</div><div><div class="diff-title">Prove innocence without revealing identity</div><div class="diff-text">Generate a ZK proof that your funds are not from a sanctioned source. Show it to any exchange or regulator. They learn nothing else about you.</div></div></div>
+        <div class="diff-item"><div class="diff-check">✓</div><div><div class="diff-title">No trusted setup per circuit</div><div class="diff-text">PLONK with KZG uses a universal setup. Railgun requires a ceremony every time the circuit changes. Poseidra doesn't have that problem.</div></div></div>
+        <div class="diff-item"><div class="diff-check">✓</div><div><div class="diff-title">Formally specified and published</div><div class="diff-text">A full academic paper with a five-class adversary model, formal privacy proofs, and circuit specifications. Not marketing — mathematics.</div></div></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="eyebrow" style="margin-bottom:1.5rem;">Protocol Comparison</div>
+      <div class="comparison-box">
+        <div class="comparison-header">
+          <div class="comp-col-head">Feature</div>
+          <div class="comp-col-head">Railgun</div>
+          <div class="comp-col-head hi">Poseidra</div>
+        </div>
+        <div class="comp-row"><div class="comp-cell feature">Compliance architecture</div><div class="comp-cell no">Post-launch add-on</div><div class="comp-cell yes pos">Core by design</div></div>
+        <div class="comp-row"><div class="comp-cell feature">Exclusion set proofs</div><div class="comp-cell yes">✓</div><div class="comp-cell yes pos">✓</div></div>
+        <div class="comp-row"><div class="comp-cell feature">Association set proofs</div><div class="comp-cell no">✗</div><div class="comp-cell yes pos">✓</div></div>
+        <div class="comp-row"><div class="comp-cell feature">Temporal validity</div><div class="comp-cell no">✗</div><div class="comp-cell yes pos">✓</div></div>
+        <div class="comp-row"><div class="comp-cell feature">Trusted setup</div><div class="comp-cell no">Per circuit</div><div class="comp-cell yes pos">Universal</div></div>
+        <div class="comp-row"><div class="comp-cell feature">MEV adversary modeled</div><div class="comp-cell no">✗</div><div class="comp-cell yes pos">✓</div></div>
+        <div class="comp-row"><div class="comp-cell feature">Formal academic paper</div><div class="comp-cell no">✗</div><div class="comp-cell yes pos">✓</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="section-alt">
+  <div class="reveal">
+    <div class="eyebrow">Foundation</div>
+    <h2 class="section-title">Built on solid ground.</h2>
+  </div>
+  <div class="trust-grid reveal">
+    <div class="trust-cell"><div class="trust-value"><em>5</em></div><div class="trust-label">Adversary classes formally modeled</div></div>
+    <div class="trust-cell"><div class="trust-value">~<em>2,400</em></div><div class="trust-label">Circuit constraints (Poseidon t=3)</div></div>
+    <div class="trust-cell"><div class="trust-value"><em>19</em></div><div class="trust-label">Sections in published research paper</div></div>
+    <div class="trust-cell"><div class="trust-value"><em>&lt;2s</em></div><div class="trust-label">Proof generation target</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:1px;" class="reveal">
+    <div style="background:var(--bg-card);padding:28px 32px;"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;color:var(--gold);margin-bottom:0.75rem;text-transform:uppercase;">Open Source</div><div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">Full implementation on GitHub. Fork it, audit it, build on it. No black boxes.</div></div>
+    <div style="background:var(--bg-card);padding:28px 32px;"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;color:var(--gold);margin-bottom:0.75rem;text-transform:uppercase;">Non-Custodial</div><div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">Your funds never leave your control. No centralized entity holds assets at any point in the protocol.</div></div>
+    <div style="background:var(--bg-card);padding:28px 32px;"><div style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;color:var(--gold);margin-bottom:0.75rem;text-transform:uppercase;">Formally Specified</div><div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">Every design decision documented and mathematically justified. Published on IACR ePrint.</div></div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist-section" id="waitlist">
+  <div class="waitlist-bg"></div>
+  <h2 class="waitlist-title reveal">Get early access<br>to <em>Poseidra.</em></h2>
+  <p class="waitlist-sub reveal">We're opening access to institutions, funds, and developers first. Join the list to be notified when we launch.</p>
+  <div class="waitlist-form reveal">
+    <input class="waitlist-input" type="email" placeholder="your@email.com">
+    <button class="waitlist-btn">Join</button>
+  </div>
+  <p class="waitlist-note reveal">No spam. Unsubscribe anytime. Developer access available for open source contributors.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <span style="font-family:'DM Serif Display',serif;font-size:1.4rem;display:block;margin-bottom:0.75rem;">Poseidra</span>
+    <p>Private transactions with proven compliance. Non-custodial. Open source. Formally specified.</p>
+  </div>
+  <div>
+    <div class="footer-col-title">Product</div>
+    <ul class="footer-links"><li><a href="architecture.html">How It Works</a></li><li><a href="compliance.html">Compliance</a></li><li><a href="roadmap.html">Roadmap</a></li><li><a href="#waitlist">Early Access</a></li></ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Research</div>
+    <ul class="footer-links"><li><a href="research.html">Paper</a></li><li><a href="docs.html">Documentation</a></li><li><a href="#">GitHub</a></li><li><a href="#">IACR ePrint</a></li></ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Legal</div>
+    <ul class="footer-links"><li><a href="#">Open Source License</a></li><li><a href="#">Disclaimer</a></li></ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>Poseidra © 2025 · Open Source · Non-Custodial</p>
+  <p>Research only. Not financial or legal advice.</p>
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.06 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

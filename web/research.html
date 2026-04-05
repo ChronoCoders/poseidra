@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research — Poseidra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── POSEIDRA SHARED STYLES ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080A0F;
+  --bg-raised: #0D1018;
+  --bg-card:   #111520;
+  --border:    #1E2535;
+  --border-hi: #2C3650;
+  --gold:      #C8A96E;
+  --gold-dim:  #8A7044;
+  --text:      #E8EAF0;
+  --text-muted:#8891A8;
+  --text-dim:  #4A5168;
+  --accent:    #4A7DFF;
+  --green:     #2DD4AA;
+  --red:       #FF4A6A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  height: 72px;
+  background: rgba(8,10,15,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-mark { width: 36px; height: 36px; }
+.logo-mark svg { width: 100%; height: 100%; }
+
+.nav-wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--gold); }
+
+.nav-cta {
+  background: transparent !important;
+  border: 1px solid var(--gold-dim) !important;
+  color: var(--gold) !important;
+  padding: 8px 20px !important;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: rgba(200,169,110,0.08) !important;
+  border-color: var(--gold) !important;
+}
+
+/* PAGE HERO */
+.page-hero {
+  padding: 160px 4rem 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 80% 30%, rgba(74,125,255,0.05) 0%, transparent 70%);
+}
+
+.page-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 70%);
+}
+
+.page-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.page-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  position: relative;
+}
+
+.page-title em { color: var(--gold); font-style: italic; }
+
+.page-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  line-height: 1.8;
+  position: relative;
+}
+
+/* SECTIONS */
+.section { padding: 80px 4rem; }
+.section-alt { background: var(--bg-raised); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  max-width: 700px;
+}
+
+.section-body {
+  color: var(--text-muted);
+  max-width: 560px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-hi); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.data-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-card); }
+.td-name { color: var(--text); font-weight: 500; }
+.td-mono { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); }
+
+/* MONO BLOCK */
+.mono-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  padding: 20px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin: 1.5rem 0;
+}
+.mono-block .k { color: var(--gold); }
+.mono-block .c { color: var(--text-dim); }
+
+/* BULLET LIST */
+.clean-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+.clean-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.clean-list li::before { content: '—'; color: var(--gold-dim); flex-shrink: 0; margin-top: 2px; }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #080A0F;
+  padding: 13px 26px;
+  border-radius: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: #D4B87A; transform: translateY(-1px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-hi);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* FOOTER */
+footer {
+  padding: 60px 4rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px;
+}
+.footer-brand p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; max-width: 280px; margin-top: 0.75rem; }
+.footer-col-title { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.25rem; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-bottom { padding: 20px 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.footer-bottom p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* GRID HELPERS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+</style>
+<style>
+.abstract-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-hi);
+  border-left: 3px solid var(--gold);
+  padding: 40px 48px;
+  margin-top: 3rem;
+  position: relative;
+}
+.abstract-box::before {
+  content: 'ABSTRACT';
+  position: absolute;
+  top: 18px; right: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+}
+.abstract-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+}
+
+.toc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px 36px;
+}
+.toc-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+.toc-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.toc-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.toc-list li:last-child { border-bottom: none; }
+.toc-num { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--gold); width: 24px; flex-shrink: 0; }
+.toc-link { color: var(--text-muted); text-decoration: none; flex: 1; transition: color 0.2s; }
+.toc-link:hover { color: var(--text); }
+.toc-page { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+
+.contribution-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.contribution-card {
+  background: var(--bg-card);
+  padding: 28px 24px;
+}
+.contribution-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.5rem;
+  color: var(--border-hi);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+.contribution-title {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.contribution-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.section-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 60px;
+  align-items: start;
+  margin-top: 2.5rem;
+}
+
+.definition-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+  margin-bottom: 1rem;
+}
+.def-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+.def-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.related-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px;
+  transition: border-color 0.3s;
+}
+.related-card:hover { border-color: var(--border-hi); }
+.related-name {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.related-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border: 1px solid var(--border-hi);
+  color: var(--text-dim);
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+.related-tag.warn { border-color: rgba(255,74,106,0.3); color: var(--red); }
+.related-tag.ok { border-color: rgba(45,212,170,0.3); color: var(--green); }
+.related-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.ref-list { list-style: none; display: flex; flex-direction: column; gap: 0; margin-top: 2rem; }
+.ref-item {
+  display: flex;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.83rem;
+}
+.ref-item:last-child { border-bottom: none; }
+.ref-num { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--gold); flex-shrink: 0; width: 28px; margin-top: 2px; }
+.ref-text { color: var(--text-muted); line-height: 1.6; }
+.ref-text em { color: var(--text); font-style: normal; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" stroke="#C8A96E" stroke-width="1" fill="none"/>
+        <polygon points="18,9 27,14.5 27,21.5 18,27 9,21.5 9,14.5" stroke="#C8A96E" stroke-width="0.5" fill="rgba(200,169,110,0.05)"/>
+        <circle cx="18" cy="18" r="3" fill="#C8A96E"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Poseidra</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="architecture.html">Architecture</a></li>
+    <li><a href="compliance.html">Compliance</a></li>
+    <li><a href="research.html" class="active">Research</a></li>
+    <li><a href="roadmap.html">Roadmap</a></li>
+    <li><a href="docs.html" class="nav-cta">Docs</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-label">Research Paper</div>
+  <h1 class="page-title">Poseidra: <em>Formal</em><br>Specification</h1>
+  <p class="page-sub">A full academic treatment of the protocol — adversary model, cryptographic primitives, privacy definitions, and security proofs.</p>
+</div>
+
+<!-- PAPER META -->
+<div class="section">
+  <div class="grid-2 reveal">
+    <div>
+      <div class="abstract-box">
+        <p class="abstract-text">
+          Traditional transaction obfuscation systems rely on heuristic mixing techniques that are increasingly ineffective and legally vulnerable. This paper proposes Poseidra, a modern architecture for privacy-preserving financial transactions based on non-custodial design, zero-knowledge cryptography, and selective disclosure. We present a formal five-class adversary model, specify concrete cryptographic primitives with domain separation, define a dynamic denomination-specific anonymity set with formal privacy bounds, and introduce a compliance layer based on association and exclusion sets with temporal validity.
+        </p>
+      </div>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <a href="#" class="btn-primary">
+          Download PDF
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v8M3 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#" class="btn-ghost">
+          IACR ePrint
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="toc">
+        <div class="toc-title">Contents</div>
+        <ul class="toc-list">
+          <li><span class="toc-num">1</span><a class="toc-link" href="#intro">Introduction</a><span class="toc-page">2</span></li>
+          <li><span class="toc-num">2</span><a class="toc-link" href="#design">Design Principles</a><span class="toc-page">3</span></li>
+          <li><span class="toc-num">3</span><a class="toc-link" href="#threat">Threat Model</a><span class="toc-page">4</span></li>
+          <li><span class="toc-num">4</span><a class="toc-link" href="#primitives">Cryptographic Primitives</a><span class="toc-page">6</span></li>
+          <li><span class="toc-num">5</span><a class="toc-link" href="#related">Related Work</a><span class="toc-page">8</span></li>
+          <li><span class="toc-num">6</span><a class="toc-link" href="#arch">System Architecture</a><span class="toc-page">10</span></li>
+          <li><span class="toc-num">7</span><a class="toc-link" href="#circuit">Circuit Specification</a><span class="toc-page">12</span></li>
+          <li><span class="toc-num">8</span><a class="toc-link" href="#workflow">Protocol Workflow</a><span class="toc-page">14</span></li>
+          <li><span class="toc-num">9</span><a class="toc-link" href="#security">Security Definitions</a><span class="toc-page">15</span></li>
+          <li><span class="toc-num">10</span><a class="toc-link" href="#compliance-sec">Compliance Layer</a><span class="toc-page">17</span></li>
+          <li><span class="toc-num">11–19</span><a class="toc-link" href="#rest">Merkle, Relayer, Gas, Trust, Roadmap, Conclusion</a><span class="toc-page">19</span></li>
+        </ul>
+      </div>
+      <div style="margin-top: 1rem; padding: 20px 24px; border: 1px solid var(--border); background: var(--bg-card);">
+        <div style="font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 8px;">AUTHOR</div>
+        <div style="font-size: 0.9rem; color: var(--text); font-weight: 500;">Altug Tatlisu</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Independent Researcher</div>
+        <div style="font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 12px;">2025 · Open Source · Non-Custodial</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRIBUTIONS -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">Contributions</div>
+    <h2 class="section-title">What this paper adds.</h2>
+  </div>
+  <div class="contribution-grid reveal">
+    <div class="contribution-card">
+      <div class="contribution-num">01</div>
+      <div class="contribution-title">Five-Class Adversary Model</div>
+      <div class="contribution-text">Explicit modeling of MEV block builders and cross-layer correlation — threat classes absent from every comparable protocol specification.</div>
+    </div>
+    <div class="contribution-card">
+      <div class="contribution-num">02</div>
+      <div class="contribution-title">Dynamic Anonymity Set</div>
+      <div class="contribution-text">Denomination-specific N_t evaluated at proof generation time, not deposit time. Formal bound: Adv_link ≤ 1/N_t + ε.</div>
+    </div>
+    <div class="contribution-card">
+      <div class="contribution-num">03</div>
+      <div class="contribution-title">Domain Separation</div>
+      <div class="contribution-text">All Poseidon hash constructions carry distinct domain tags. Cross-construction collision attacks are cryptographically precluded.</div>
+    </div>
+    <div class="contribution-card">
+      <div class="contribution-num">04</div>
+      <div class="contribution-title">Compliance as Core Architecture</div>
+      <div class="contribution-text">Association and exclusion set proofs are first-class protocol components, not post-deployment add-ons.</div>
+    </div>
+    <div class="contribution-card">
+      <div class="contribution-num">05</div>
+      <div class="contribution-title">Temporal Validity</div>
+      <div class="contribution-text">Compliance proofs carry valid_at timestamps. Flagging events do not retroactively invalidate previously generated proofs.</div>
+    </div>
+    <div class="contribution-card">
+      <div class="contribution-num">06</div>
+      <div class="contribution-title">PLONK/KZG Throughout</div>
+      <div class="contribution-text">No Groth16 dependency. Universal trusted setup applies across all circuit versions. No per-circuit ceremony required.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY DEFINITION -->
+<div class="section" id="security">
+  <div class="reveal">
+    <div class="section-label">Formal Definitions</div>
+    <h2 class="section-title">Precisely stated. Not claimed.</h2>
+  </div>
+  <div class="section-content reveal">
+    <div>
+      <div class="definition-box">
+        <div class="def-label">Definition 1 — Anonymity Set</div>
+        <div class="def-text">Let N_t denote the size of the anonymity set at time t, defined as the number of valid, unspent commitments with equal denomination and a valid root window at the moment a withdrawal proof is generated.</div>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">Definition 2 — Privacy</div>
+        <div class="def-text">A scheme satisfies privacy if any PPT adversary has advantage Adv_link ≤ 1/N_t + ε, where ε is negligible in the security parameter. The anonymity set is dynamic; privacy is evaluated at proof generation time.</div>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">Definition 3 — Soundness</div>
+        <div class="def-text">No adversary can produce an accepting proof without knowledge of a valid secret and nullifier corresponding to a commitment in the Merkle tree. No adversary can reuse a nullifier across two withdrawals.</div>
+      </div>
+      <div class="definition-box">
+        <div class="def-label">Definition 4 — Unlinkability</div>
+        <div class="def-text">Given full on-chain data and timing information, no adversary can correlate deposit and withdrawal flows beyond negligible probability, provided N_t is sufficiently large.</div>
+      </div>
+    </div>
+    <div>
+      <div style="padding: 32px 28px; background: var(--bg-card); border: 1px solid var(--border-hi);">
+        <div class="def-label" style="margin-bottom: 1.5rem;">Informal Security Argument</div>
+        <ul class="clean-list">
+          <li>Poseidon preimage resistance ensures commitment hiding</li>
+          <li>Merkle inclusion proof ensures set membership</li>
+          <li>Nullifier uniqueness prevents double spend</li>
+          <li>PLONK zero-knowledge property ensures no private input leakage</li>
+          <li>Domain separation prevents cross-construction attacks</li>
+          <li>Root validity window bounds proof age and anonymity set drift</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED WORK -->
+<div class="section section-alt" id="related">
+  <div class="reveal">
+    <div class="section-label">Related Work</div>
+    <h2 class="section-title">Where Poseidra fits.</h2>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 2.5rem;" class="reveal">
+    <div class="related-card">
+      <div class="related-name">Tornado Cash</div>
+      <span class="related-tag warn">Deprecated</span>
+      <div class="related-text">Pedersen commitments, Groth16, Merkle trees. No compliance layer. Trusted setup per pool. Regulatory action 2022 demonstrated the legal fragility of privacy-first non-compliant designs.</div>
+    </div>
+    <div class="related-card">
+      <div class="related-name">Zcash</div>
+      <span class="related-tag">Dedicated Chain</span>
+      <div class="related-text">Pioneered zk-SNARKs for private transactions (Sapling). Strong privacy guarantees. Not designed for composability with EVM smart contract ecosystems.</div>
+    </div>
+    <div class="related-card">
+      <div class="related-name">Railgun</div>
+      <span class="related-tag">Active</span>
+      <div class="related-text">Closest competitor. Uses Groth16 with 54 circuits, UTXO model, community broadcasters. Compliance (PPOI) added post-deployment as an independent partner project — not core architecture.</div>
+    </div>
+    <div class="related-card">
+      <div class="related-name">Aztec Protocol</div>
+      <span class="related-tag">Active</span>
+      <div class="related-text">Programmable privacy via zkRollups. Supports private DeFi. Higher system complexity and distinct execution environment limit direct EVM composability.</div>
+    </div>
+    <div class="related-card" style="grid-column: span 2;">
+      <div class="related-name">Privacy Pools</div>
+      <span class="related-tag ok">Closest Conceptual Basis</span>
+      <div class="related-text">Formal paper by Buterin et al. introducing association sets for selective disclosure. Poseidra adopts and extends this model with explicit exclusion set proofs, temporal validity, a governance-parameterized flagging authority, and a full production engineering specification. Privacy Pools remains a theoretical specification without a production implementation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- REFERENCES -->
+<div class="section" id="references">
+  <div class="reveal">
+    <div class="section-label">References</div>
+    <h2 class="section-title">Academic foundations.</h2>
+  </div>
+  <ul class="ref-list reveal">
+    <li class="ref-item">
+      <span class="ref-num">[1]</span>
+      <span class="ref-text"><em>Buterin, V. et al.</em> (2023). Blockchain Privacy and Regulatory Compliance: Towards a Practical Equilibrium. arXiv:2306.11403.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[2]</span>
+      <span class="ref-text"><em>Ben-Sasson, E. et al.</em> (2014). Succinct Non-Interactive Zero Knowledge for a von Neumann Architecture. USENIX Security 2014.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[3]</span>
+      <span class="ref-text"><em>Gabizon, A., Williamson, Z., Ciobotaru, O.</em> (2019). PLONK: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge. IACR ePrint 2019/953.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[4]</span>
+      <span class="ref-text"><em>Grassi, L. et al.</em> (2019). Poseidon: A New Hash Function for Zero-Knowledge Proof Systems. USENIX Security 2021.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[5]</span>
+      <span class="ref-text"><em>Kate, A., Zaverucha, G., Goldberg, I.</em> (2010). Constant-Size Commitments to Polynomials and Their Applications. ASIACRYPT 2010.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[6]</span>
+      <span class="ref-text"><em>Hopwood, D. et al.</em> (2022). Zcash Protocol Specification. Electric Coin Company.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[7]</span>
+      <span class="ref-text"><em>RAILGUN Project.</em> (2022). RAILGUN Privacy System. https://railgun.org.</span>
+    </li>
+    <li class="ref-item">
+      <span class="ref-num">[8]</span>
+      <span class="ref-text"><em>Tornado Cash Contributors.</em> (2020). Tornado Cash Privacy Solution. https://tornado.cash.</span>
+    </li>
+  </ul>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <span class="nav-wordmark" style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; display: block;">Poseidra</span>
+    <p>Non-custodial ZK privacy protocol. Open source. Formally specified.</p>
+  </div>
+  <div>
+    <div class="footer-col-title">Protocol</div>
+    <ul class="footer-links">
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="compliance.html">Compliance</a></li>
+      <li><a href="roadmap.html">Roadmap</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Research</div>
+    <ul class="footer-links">
+      <li><a href="research.html">Paper</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="#">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>Poseidra © 2025 · Open Source · Non-Custodial</p>
+  <p>Research only. Not financial or legal advice.</p>
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

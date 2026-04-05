@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture — Poseidra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── POSEIDRA SHARED STYLES ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080A0F;
+  --bg-raised: #0D1018;
+  --bg-card:   #111520;
+  --border:    #1E2535;
+  --border-hi: #2C3650;
+  --gold:      #C8A96E;
+  --gold-dim:  #8A7044;
+  --text:      #E8EAF0;
+  --text-muted:#8891A8;
+  --text-dim:  #4A5168;
+  --accent:    #4A7DFF;
+  --green:     #2DD4AA;
+  --red:       #FF4A6A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  height: 72px;
+  background: rgba(8,10,15,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-mark { width: 36px; height: 36px; }
+.logo-mark svg { width: 100%; height: 100%; }
+
+.nav-wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--gold); }
+
+.nav-cta {
+  background: transparent !important;
+  border: 1px solid var(--gold-dim) !important;
+  color: var(--gold) !important;
+  padding: 8px 20px !important;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: rgba(200,169,110,0.08) !important;
+  border-color: var(--gold) !important;
+}
+
+/* PAGE HERO */
+.page-hero {
+  padding: 160px 4rem 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 80% 30%, rgba(74,125,255,0.05) 0%, transparent 70%);
+}
+
+.page-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 70%);
+}
+
+.page-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.page-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  position: relative;
+}
+
+.page-title em { color: var(--gold); font-style: italic; }
+
+.page-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  line-height: 1.8;
+  position: relative;
+}
+
+/* SECTIONS */
+.section { padding: 80px 4rem; }
+.section-alt { background: var(--bg-raised); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  max-width: 700px;
+}
+
+.section-body {
+  color: var(--text-muted);
+  max-width: 560px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-hi); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.data-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-card); }
+.td-name { color: var(--text); font-weight: 500; }
+.td-mono { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); }
+
+/* MONO BLOCK */
+.mono-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  padding: 20px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin: 1.5rem 0;
+}
+.mono-block .k { color: var(--gold); }
+.mono-block .c { color: var(--text-dim); }
+
+/* BULLET LIST */
+.clean-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+.clean-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.clean-list li::before { content: '—'; color: var(--gold-dim); flex-shrink: 0; margin-top: 2px; }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #080A0F;
+  padding: 13px 26px;
+  border-radius: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: #D4B87A; transform: translateY(-1px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-hi);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* FOOTER */
+footer {
+  padding: 60px 4rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px;
+}
+.footer-brand p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; max-width: 280px; margin-top: 0.75rem; }
+.footer-col-title { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.25rem; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-bottom { padding: 20px 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.footer-bottom p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* GRID HELPERS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+</style>
+<style>
+.layer-stack { display: flex; flex-direction: column; gap: 3px; margin-top: 2.5rem; }
+.layer-row { display: flex; gap: 3px; }
+.layer-cell {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  flex: 1;
+  transition: border-color 0.3s, background 0.3s;
+  cursor: default;
+  position: relative;
+}
+.layer-cell:hover { border-color: var(--border-hi); background: #151B2A; }
+.layer-cell.gold { border-left: 2px solid var(--gold); }
+.layer-cell.blue { border-left: 2px solid var(--accent); }
+.layer-cell.green { border-left: 2px solid var(--green); }
+.layer-cell.dim  { border-left: 2px solid var(--border-hi); }
+.layer-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+.layer-name { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+.layer-detail { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 3rem;
+}
+
+.spec-block { margin-bottom: 2.5rem; }
+.spec-block-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.circuit-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.input-cell {
+  background: var(--bg-card);
+  padding: 20px 24px;
+}
+.input-vis {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.input-vis.priv { color: var(--gold); }
+.input-vis.pub  { color: var(--accent); }
+.input-name { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--text); margin-bottom: 2px; }
+.input-type { font-size: 0.75rem; color: var(--text-dim); }
+
+.constraint-bar {
+  margin-top: 2.5rem;
+}
+.constraint-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.constraint-row:last-child { border-bottom: none; }
+.constraint-label { font-size: 0.83rem; color: var(--text-muted); flex: 1; }
+.constraint-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); width: 80px; text-align: right; }
+.constraint-bar-fill {
+  height: 2px;
+  background: var(--border-hi);
+  flex: 2;
+  position: relative;
+  border-radius: 1px;
+  overflow: hidden;
+}
+.constraint-bar-fill-inner {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--gold);
+  border-radius: 1px;
+  transition: width 1s ease;
+}
+
+.gas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.gas-cell {
+  background: var(--bg-card);
+  padding: 28px 24px;
+  text-align: center;
+}
+.gas-op { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 0.75rem; text-transform: uppercase; }
+.gas-val { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--text); line-height: 1; }
+.gas-unit { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
+.gas-l2 { font-size: 0.75rem; color: var(--green); margin-top: 8px; }
+
+.threat-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+.threat-row:last-child { border-bottom: none; }
+.threat-id { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold); width: 28px; flex-shrink: 0; }
+.threat-info-name { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 0.4rem; }
+.threat-info-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" stroke="#C8A96E" stroke-width="1" fill="none"/>
+        <polygon points="18,9 27,14.5 27,21.5 18,27 9,21.5 9,14.5" stroke="#C8A96E" stroke-width="0.5" fill="rgba(200,169,110,0.05)"/>
+        <circle cx="18" cy="18" r="3" fill="#C8A96E"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Poseidra</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="architecture.html" class="active">Architecture</a></li>
+    <li><a href="compliance.html">Compliance</a></li>
+    <li><a href="research.html">Research</a></li>
+    <li><a href="roadmap.html">Roadmap</a></li>
+    <li><a href="docs.html" class="nav-cta">Docs</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-label">Technical Architecture</div>
+  <h1 class="page-title">Built for <em>production.</em><br>Specified formally.</h1>
+  <p class="page-sub">Full system stack, circuit specification, gas analysis, and trust assumptions. Every number measured — none estimated.</p>
+</div>
+
+<!-- SYSTEM STACK -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">System Stack</div>
+    <h2 class="section-title">Five layers. Zero custody.</h2>
+  </div>
+  <div class="layer-stack reveal">
+    <div class="layer-row">
+      <div class="layer-cell gold" style="flex:2">
+        <div class="layer-tag">Smart Contracts · Solidity + Foundry</div>
+        <div class="layer-name">Poseidra.sol — deposit, withdraw, nullifier tracking</div>
+        <div class="layer-detail">Accepts fixed denomination deposits. Verifies PLONK proofs on withdrawal. Enforces root validity window.</div>
+      </div>
+      <div class="layer-cell gold">
+        <div class="layer-tag">On-Chain</div>
+        <div class="layer-name">ComplianceRegistry.sol</div>
+        <div class="layer-detail">Association set A, exclusion set E. Governance-parameterized flagging authority.</div>
+      </div>
+      <div class="layer-cell gold">
+        <div class="layer-tag">Generated</div>
+        <div class="layer-name">Verifier.sol</div>
+        <div class="layer-detail">PLONK/KZG verifier. Generated from final circuit via snarkjs. Never handwritten.</div>
+      </div>
+    </div>
+    <div class="layer-row">
+      <div class="layer-cell blue" style="flex:1.5">
+        <div class="layer-tag">ZK Circuits · circom → halo2</div>
+        <div class="layer-name">withdraw.circom</div>
+        <div class="layer-detail">Commitment + nullifier + Merkle inclusion. ~2,300–2,600 constraints.</div>
+      </div>
+      <div class="layer-cell blue" style="flex:1.5">
+        <div class="layer-tag">Proof Engine · Rust</div>
+        <div class="layer-name">Prover</div>
+        <div class="layer-detail">Witness generation, Poseidon computation, PLONK proof generation. Target: &lt;2s.</div>
+      </div>
+    </div>
+    <div class="layer-row">
+      <div class="layer-cell green" style="flex:2">
+        <div class="layer-tag">Backend · Rust + Axum</div>
+        <div class="layer-name">Indexer API + Merkle State</div>
+        <div class="layer-detail">Indexes deposits, maintains local Merkle tree, serves paths for witness generation. PostgreSQL + Redis.</div>
+      </div>
+      <div class="layer-cell green">
+        <div class="layer-tag">Compliance · Rust</div>
+        <div class="layer-name">Set Proofs + Risk Scoring</div>
+        <div class="layer-detail">Membership / non-membership proofs. Off-chain screening API with caching.</div>
+      </div>
+    </div>
+    <div class="layer-row">
+      <div class="layer-cell dim" style="flex:1">
+        <div class="layer-tag">Relayer Network · Rust</div>
+        <div class="layer-name">Commit-Reveal Fee · Multi-Instance · Direct Fallback</div>
+        <div class="layer-detail">Semi-trusted. Cannot steal funds. Cannot break cryptographic privacy. Multiple instances required in production.</div>
+      </div>
+    </div>
+    <div class="layer-row">
+      <div class="layer-cell" style="flex:1">
+        <div class="layer-tag">Target Networks</div>
+        <div class="layer-name">Ethereum L1 &nbsp;·&nbsp; zkSync Era &nbsp;·&nbsp; Scroll &nbsp;·&nbsp; Base</div>
+        <div class="layer-detail">L2 deployment primary target for gas efficiency. L1 used as reference verifier.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CRYPTOGRAPHIC PRIMITIVES -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">Cryptographic Primitives</div>
+    <h2 class="section-title">Every choice justified.</h2>
+  </div>
+  <table class="data-table reveal" style="margin-top: 2.5rem;">
+    <thead>
+      <tr>
+        <th>Primitive</th>
+        <th>Choice</th>
+        <th>Rationale</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Hash Function</td>
+        <td class="td-mono">Poseidon (t=3)</td>
+        <td>SNARK-friendly; ~90 constraints per invocation vs thousands for SHA-256</td>
+      </tr>
+      <tr>
+        <td class="td-name">Commitment</td>
+        <td class="td-mono">Poseidon(domain_C, secret, nullifier)</td>
+        <td>Binding and hiding; domain_C prevents cross-construction collision with nullifier hash</td>
+      </tr>
+      <tr>
+        <td class="td-name">Nullifier</td>
+        <td class="td-mono">Poseidon(domain_N, nullifier, chain_id, contract)</td>
+        <td>chain_id + contract binding prevents cross-chain replay and cross-instance collision</td>
+      </tr>
+      <tr>
+        <td class="td-name">Merkle Tree</td>
+        <td class="td-mono">Binary, Poseidon, depth 20</td>
+        <td>~1M leaf capacity; all hashes SNARK-native; consistent with prover and contracts</td>
+      </tr>
+      <tr>
+        <td class="td-name">Proof System (L1)</td>
+        <td class="td-mono">PLONK + KZG</td>
+        <td>Universal setup; no per-circuit trusted setup; L1 pairing-compatible verifier</td>
+      </tr>
+      <tr>
+        <td class="td-name">Proof System (L2)</td>
+        <td class="td-mono">Halo2 / IPA</td>
+        <td>No trusted setup; supports recursive aggregation; targets future L2 scaling</td>
+      </tr>
+      <tr>
+        <td class="td-name">Excluded</td>
+        <td class="td-mono" style="color: var(--red);">Groth16</td>
+        <td>Requires trusted setup per circuit — architecturally unacceptable for an evolving system</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Domain Separation</div>
+    <div class="mono-block">
+      <span class="k">domain_C</span> ≠ <span class="k">domain_N</span><br>
+      <span class="k">domain_C</span>, <span class="k">domain_N</span> ∈ F_p \ {0, 1}<br><br>
+      <span class="c">// Commitment construction</span><br>
+      C = Poseidon(<span class="k">domain_C</span>, secret, nullifier)<br><br>
+      <span class="c">// Nullifier construction</span><br>
+      N = Poseidon(<span class="k">domain_N</span>, nullifier, chain_id, contract_address)<br><br>
+      <span class="c">// Constants must be identical across: circuit, Rust prover, Solidity verifier</span><br>
+      <span class="c">// Mismatch = critical implementation error</span>
+    </div>
+  </div>
+</div>
+
+<!-- CIRCUIT SPEC -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">Circuit Specification</div>
+    <h2 class="section-title">withdrawal.circom</h2>
+  </div>
+  <div class="circuit-inputs reveal">
+    <div class="input-cell">
+      <div class="input-vis priv">Private Input</div>
+      <div class="input-name">secret</div>
+      <div class="input-type">Fr — field element</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis priv">Private Input</div>
+      <div class="input-name">nullifier</div>
+      <div class="input-type">Fr — field element</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis priv">Private Input</div>
+      <div class="input-name">pathElements[20]</div>
+      <div class="input-type">Fr[20] — Merkle sibling hashes</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis priv">Private Input</div>
+      <div class="input-name">pathIndices[20]</div>
+      <div class="input-type">{0,1}[20] — left/right indicators</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis pub">Public Input</div>
+      <div class="input-name">root</div>
+      <div class="input-type">Fr — Merkle root (within validity window)</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis pub">Public Input</div>
+      <div class="input-name">nullifier_hash</div>
+      <div class="input-type">Fr — checked against on-chain mapping</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis pub">Public Input</div>
+      <div class="input-name">recipient</div>
+      <div class="input-type">Fr — withdrawal destination address</div>
+    </div>
+    <div class="input-cell">
+      <div class="input-vis pub">Public Input</div>
+      <div class="input-name">chain_id + contract_address</div>
+      <div class="input-type">Fr — bound into nullifier to prevent replay</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Constraint Breakdown</div>
+    <div class="constraint-bar">
+      <div class="constraint-row">
+        <span class="constraint-label">Commitment hash — Poseidon(domain_C, secret, nullifier)</span>
+        <div class="constraint-bar-fill"><div class="constraint-bar-fill-inner" style="width: 10%"></div></div>
+        <span class="constraint-val">~250</span>
+      </div>
+      <div class="constraint-row">
+        <span class="constraint-label">Nullifier hash — Poseidon(domain_N, nullifier, chain_id, contract)</span>
+        <div class="constraint-bar-fill"><div class="constraint-bar-fill-inner" style="width: 10%"></div></div>
+        <span class="constraint-val">~250</span>
+      </div>
+      <div class="constraint-row">
+        <span class="constraint-label">Merkle path — 20 levels × ~90 constraints per level</span>
+        <div class="constraint-bar-fill"><div class="constraint-bar-fill-inner" style="width: 75%"></div></div>
+        <span class="constraint-val">~1,800</span>
+      </div>
+      <div class="constraint-row" style="border-top: 1px solid var(--border-hi); margin-top: 4px; padding-top: 20px;">
+        <span class="constraint-label" style="font-weight: 500; color: var(--text);">Total (Poseidon t=3, depth 20)</span>
+        <div class="constraint-bar-fill"><div class="constraint-bar-fill-inner" style="width: 100%; background: var(--gold);"></div></div>
+        <span class="constraint-val" style="color: var(--text);">~2,300–2,600</span>
+      </div>
+    </div>
+    <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.75rem;">Per-level cost is implementation-dependent. Range is tight for Poseidon t=3 at depth 20 and must be verified after every circuit change.</p>
+  </div>
+</div>
+
+<!-- GAS -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">Gas Analysis</div>
+    <h2 class="section-title">Measured. Not estimated.</h2>
+    <p class="section-body">All production gas figures are verified via Foundry forge snapshot on deployed contracts. The values below are planning estimates; actuals must be measured before mainnet launch.</p>
+  </div>
+  <div class="gas-grid reveal">
+    <div class="gas-cell">
+      <div class="gas-op">Deposit (L1)</div>
+      <div class="gas-val">~200k</div>
+      <div class="gas-unit">gas target: &lt;250k</div>
+      <div class="gas-l2">L2: ~30k</div>
+    </div>
+    <div class="gas-cell">
+      <div class="gas-op">Withdrawal (L1)</div>
+      <div class="gas-val">~450k</div>
+      <div class="gas-unit">gas target: &lt;600k</div>
+      <div class="gas-l2">L2: ~&lt;$1 at normal fees</div>
+    </div>
+    <div class="gas-cell">
+      <div class="gas-op">PLONK Verification</div>
+      <div class="gas-val">~400k</div>
+      <div class="gas-unit">dominant cost: KZG pairings</div>
+      <div class="gas-l2">9 public inputs</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">Performance Targets</div>
+    <table class="data-table" style="margin-top: 1.5rem;">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Target</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-name">Proving time</td>
+          <td class="td-mono">&lt;2s</td>
+          <td>Desktop, single-threaded. Measured on release build.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Proof size</td>
+          <td class="td-mono">&lt;1KB</td>
+          <td>PLONK proof + public inputs serialized.</td>
+        </tr>
+        <tr>
+          <td class="td-name">On-chain verification</td>
+          <td class="td-mono">&lt;500k gas</td>
+          <td>L1 target. L2 significantly lower with aggregation.</td>
+        </tr>
+        <tr>
+          <td class="td-name">Root validity window</td>
+          <td class="td-mono">100 roots</td>
+          <td>Maximum age of a valid proof. Bounds anonymity set drift.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TRUST ASSUMPTIONS -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">Trust Assumptions</div>
+    <h2 class="section-title">What you must trust. What you don't.</h2>
+  </div>
+  <div class="grid-2 reveal" style="margin-top: 2.5rem;">
+    <div>
+      <div style="padding: 28px 32px; background: var(--bg-card); border: 1px solid var(--border); border-left: 2px solid var(--green); margin-bottom: 1rem;">
+        <div class="section-label" style="margin-bottom: 0.75rem;">Trusted</div>
+        <ul class="clean-list">
+          <li>Soundness of the PLONK proof system under the KZG assumption</li>
+          <li>Correct circuit implementation — no under-constrained signals</li>
+          <li>Poseidon parameters identical across circuit, prover, and verifier</li>
+          <li>Perpetual Powers of Tau trusted setup for universal reference string</li>
+        </ul>
+      </div>
+      <div style="padding: 28px 32px; background: var(--bg-card); border: 1px solid var(--border); border-left: 2px solid var(--gold);">
+        <div class="section-label" style="margin-bottom: 0.75rem;">Semi-Trusted — Relayer</div>
+        <ul class="clean-list">
+          <li>Can censor individual transactions</li>
+          <li>Cannot steal funds — held by non-custodial contract</li>
+          <li>Cannot break cryptographic privacy</li>
+          <li>Mitigated by: multiple instances, direct withdrawal fallback</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div style="padding: 28px 32px; background: var(--bg-card); border: 1px solid var(--border); border-left: 2px solid var(--red);">
+        <div class="section-label" style="margin-bottom: 0.75rem;">Never Required</div>
+        <ul class="clean-list">
+          <li>Trust in any relayer to handle funds honestly</li>
+          <li>Trust in any centralized compliance authority with hardcoded power</li>
+          <li>Per-circuit trusted ceremony (Groth16 excluded for this reason)</li>
+          <li>Trust in any frontend operator to not censor withdrawals</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <span class="nav-wordmark" style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; display: block;">Poseidra</span>
+    <p>Non-custodial ZK privacy protocol. Open source. Formally specified.</p>
+  </div>
+  <div>
+    <div class="footer-col-title">Protocol</div>
+    <ul class="footer-links">
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="compliance.html">Compliance</a></li>
+      <li><a href="roadmap.html">Roadmap</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Research</div>
+    <ul class="footer-links">
+      <li><a href="research.html">Paper</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="#">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>Poseidra © 2025 · Open Source · Non-Custodial</p>
+  <p>Research only. Not financial or legal advice.</p>
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance — Poseidra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── POSEIDRA SHARED STYLES ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080A0F;
+  --bg-raised: #0D1018;
+  --bg-card:   #111520;
+  --border:    #1E2535;
+  --border-hi: #2C3650;
+  --gold:      #C8A96E;
+  --gold-dim:  #8A7044;
+  --text:      #E8EAF0;
+  --text-muted:#8891A8;
+  --text-dim:  #4A5168;
+  --accent:    #4A7DFF;
+  --green:     #2DD4AA;
+  --red:       #FF4A6A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  height: 72px;
+  background: rgba(8,10,15,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-mark { width: 36px; height: 36px; }
+.logo-mark svg { width: 100%; height: 100%; }
+
+.nav-wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--gold); }
+
+.nav-cta {
+  background: transparent !important;
+  border: 1px solid var(--gold-dim) !important;
+  color: var(--gold) !important;
+  padding: 8px 20px !important;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: rgba(200,169,110,0.08) !important;
+  border-color: var(--gold) !important;
+}
+
+/* PAGE HERO */
+.page-hero {
+  padding: 160px 4rem 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 80% 30%, rgba(74,125,255,0.05) 0%, transparent 70%);
+}
+
+.page-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 70%);
+}
+
+.page-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.page-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  position: relative;
+}
+
+.page-title em { color: var(--gold); font-style: italic; }
+
+.page-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  line-height: 1.8;
+  position: relative;
+}
+
+/* SECTIONS */
+.section { padding: 80px 4rem; }
+.section-alt { background: var(--bg-raised); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  max-width: 700px;
+}
+
+.section-body {
+  color: var(--text-muted);
+  max-width: 560px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-hi); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.data-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-card); }
+.td-name { color: var(--text); font-weight: 500; }
+.td-mono { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); }
+
+/* MONO BLOCK */
+.mono-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  padding: 20px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin: 1.5rem 0;
+}
+.mono-block .k { color: var(--gold); }
+.mono-block .c { color: var(--text-dim); }
+
+/* BULLET LIST */
+.clean-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+.clean-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.clean-list li::before { content: '—'; color: var(--gold-dim); flex-shrink: 0; margin-top: 2px; }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #080A0F;
+  padding: 13px 26px;
+  border-radius: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: #D4B87A; transform: translateY(-1px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-hi);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* FOOTER */
+footer {
+  padding: 60px 4rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px;
+}
+.footer-brand p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; max-width: 280px; margin-top: 0.75rem; }
+.footer-col-title { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.25rem; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-bottom { padding: 20px 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.footer-bottom p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* GRID HELPERS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+</style>
+<style>
+.vs-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.vs-col { background: var(--bg-card); padding: 32px 28px; }
+.vs-col-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.vs-col-title.pos { color: var(--green); }
+.vs-col-title.neg { color: var(--red); }
+.vs-items { display: flex; flex-direction: column; gap: 12px; }
+.vs-item { font-size: 0.83rem; color: var(--text-muted); display: flex; gap: 10px; line-height: 1.6; }
+.vs-item::before { flex-shrink: 0; margin-top: 2px; }
+.vs-item.yes::before { content: '✓'; color: var(--green); }
+.vs-item.no::before  { content: '✗'; color: var(--red); }
+
+.timeline {
+  margin-top: 3rem;
+  position: relative;
+  padding-left: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--gold), var(--border-hi), var(--red));
+}
+.timeline-item { position: relative; padding: 0 0 3rem 2rem; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -2.5rem;
+  top: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: var(--bg);
+}
+.timeline-dot.valid { background: var(--green); border-color: var(--green); }
+.timeline-dot.flag  { background: var(--red);   border-color: var(--red); }
+.timeline-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.timeline-title { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.timeline-text  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+
+.proof-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  margin-bottom: 1rem;
+}
+.proof-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.proof-type.mem  { color: var(--green); }
+.proof-type.non  { color: var(--gold); }
+.proof-formula {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+.proof-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+
+.governance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.gov-cell { background: var(--bg-card); padding: 28px 24px; }
+.gov-param {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.gov-name { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }
+.gov-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" stroke="#C8A96E" stroke-width="1" fill="none"/>
+        <polygon points="18,9 27,14.5 27,21.5 18,27 9,21.5 9,14.5" stroke="#C8A96E" stroke-width="0.5" fill="rgba(200,169,110,0.05)"/>
+        <circle cx="18" cy="18" r="3" fill="#C8A96E"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Poseidra</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="architecture.html">Architecture</a></li>
+    <li><a href="compliance.html" class="active">Compliance</a></li>
+    <li><a href="research.html">Research</a></li>
+    <li><a href="roadmap.html">Roadmap</a></li>
+    <li><a href="docs.html" class="nav-cta">Docs</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-label">Compliance Architecture</div>
+  <h1 class="page-title">Privacy and compliance<br>are <em>not opposites.</em></h1>
+  <p class="page-sub">Association set proofs, exclusion set non-membership, temporal validity, and governance-parameterized flagging authority — all core, none bolted on.</p>
+</div>
+
+<!-- POSEIDRA VS OTHERS -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">The Difference</div>
+    <h2 class="section-title">Core architecture, not an add-on.</h2>
+    <p class="section-body">Every deployed privacy protocol that added compliance did so after initial deployment. Poseidra is specified compliance-first from day one.</p>
+  </div>
+  <div class="vs-table reveal">
+    <div class="vs-col">
+      <div class="vs-col-title pos">Poseidra</div>
+      <div class="vs-items">
+        <div class="vs-item yes">Compliance integrated at architecture level</div>
+        <div class="vs-item yes">Association set + exclusion set proofs (ZK)</div>
+        <div class="vs-item yes">Temporal validity on all compliance proofs</div>
+        <div class="vs-item yes">Governance-parameterized flagging authority</div>
+        <div class="vs-item yes">Formal adversary model including state-level</div>
+        <div class="vs-item yes">PLONK/KZG — no per-circuit trusted setup</div>
+        <div class="vs-item yes">Non-membership proofs via sparse Merkle tree</div>
+      </div>
+    </div>
+    <div class="vs-col">
+      <div class="vs-col-title neg">Railgun (closest competitor)</div>
+      <div class="vs-items">
+        <div class="vs-item no">Private POI added post-deployment as partner project</div>
+        <div class="vs-item no">Only exclusion proofs (no association set)</div>
+        <div class="vs-item no">No temporal validity specification</div>
+        <div class="vs-item no">List providers are external centralized services</div>
+        <div class="vs-item no">No formal adversary model published</div>
+        <div class="vs-item no">Groth16 — 54 circuits, per-circuit trusted setup</div>
+        <div class="vs-item no">No non-membership proof primitive</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SET PROOFS -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">ZK Set Proofs</div>
+    <h2 class="section-title">Prove legitimacy without revealing identity.</h2>
+    <p class="section-body">Both proof types are generated client-side. Any counterparty — exchange, auditor, regulator — can verify them without learning anything about the user.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-top: 2.5rem;">
+    <div>
+      <div class="proof-box">
+        <div class="proof-type mem">Membership Proof</div>
+        <div class="proof-formula">C ∈ A</div>
+        <div class="proof-desc">Proves the commitment belongs to the association set of clean, screened commitments. Verifiable by any counterparty. Reveals nothing about the commitment's origin, amount, or user identity.</div>
+      </div>
+      <div class="proof-box">
+        <div class="proof-type non">Non-Membership Proof</div>
+        <div class="proof-formula">C ∉ E</div>
+        <div class="proof-desc">Proves the commitment does not appear in the exclusion set of flagged or sanctioned commitments. Implemented via sparse Merkle tree non-membership proof. Zero information leakage beyond the binary yes/no result.</div>
+      </div>
+    </div>
+    <div>
+      <div style="padding: 32px 28px; background: var(--bg-card); border: 1px solid var(--border); height: 100%;">
+        <div class="section-label" style="margin-bottom: 1.5rem;">How Verification Works</div>
+        <ul class="clean-list">
+          <li>User generates proof client-side — no server involvement</li>
+          <li>Proof is a small ZK artifact (&lt;1KB)</li>
+          <li>Counterparty runs the verifier against the proof and public inputs</li>
+          <li>Verifier learns only: valid ∈ {true, false}</li>
+          <li>No user identity, address, balance, or transaction history exposed</li>
+          <li>Proof can be submitted to any verifier — on-chain or off-chain</li>
+          <li>Temporal validity: verifier also checks valid_at against flagging timestamp</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPORAL VALIDITY -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">Temporal Validity</div>
+    <h2 class="section-title">Flagging events do not reach backward.</h2>
+    <p class="section-body">A commitment that was clean at time t remains provably clean for proofs generated before it was flagged. This prevents retroactive compliance violations while ensuring newly flagged commitments cannot be used going forward.</p>
+  </div>
+  <div class="grid-2 reveal" style="margin-top: 2.5rem; align-items: start;">
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot valid"></div>
+        <div class="timeline-label">t = 0</div>
+        <div class="timeline-title">Deposit</div>
+        <div class="timeline-text">Commitment C created and inserted into Merkle tree. Clean — not in exclusion set E.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot valid"></div>
+        <div class="timeline-label">t = 100</div>
+        <div class="timeline-title">Proof Generated (valid_at = 100)</div>
+        <div class="timeline-text">User generates withdrawal proof. valid_at = 100 recorded as public input. C ∉ E at this moment — proof is valid.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot flag"></div>
+        <div class="timeline-label">t = 200</div>
+        <div class="timeline-title">Flagging Event</div>
+        <div class="timeline-text">C added to exclusion set E at time t' = 200. This is recorded with the flagging timestamp on-chain.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-label">Verification</div>
+        <div class="timeline-title">Temporal Check</div>
+        <div class="timeline-text">Proof with valid_at = 100 passes (100 &lt; 200). New proof with valid_at = 300 fails (300 &gt; 200). Retroactive invalidation does not occur.</div>
+      </div>
+    </div>
+    <div>
+      <div class="mono-block">
+        <span class="c">// Temporal validity rule</span><br>
+        <span class="k">valid</span> = proof.valid_at &lt; flag_timestamp(C)<br><br>
+        <span class="c">// Before flagging: valid_at=100, flag_time=200</span><br>
+        100 &lt; 200 → <span class="k">valid</span> ✓<br><br>
+        <span class="c">// After flagging: valid_at=300, flag_time=200</span><br>
+        300 &lt; 200 → <span class="k">invalid</span> ✗<br><br>
+        <span class="c">// valid_at is a public input in the ZK proof</span><br>
+        <span class="c">// Cannot be forged or altered without invalidating proof</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOVERNANCE -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">Governance</div>
+    <h2 class="section-title">Authority is a parameter, not a constant.</h2>
+    <p class="section-body">The flagging authority is stored in the ComplianceRegistry contract as a governance-controlled parameter. It is never hardcoded. Changes require a timelock delay. Jurisdictional adaptation without contract upgrades.</p>
+  </div>
+  <div class="governance-grid reveal">
+    <div class="gov-cell">
+      <div class="gov-param">Parameter</div>
+      <div class="gov-name">Flagging Authority</div>
+      <div class="gov-text">On-chain address with permission to add commitments to the exclusion set. Set at deployment, changeable via governance + timelock.</div>
+    </div>
+    <div class="gov-cell">
+      <div class="gov-param">Constraint</div>
+      <div class="gov-name">Timelock Delay</div>
+      <div class="gov-text">Changes to the flagging authority require N blocks delay (configurable at deployment). Prevents sudden unilateral authority transfers.</div>
+    </div>
+    <div class="gov-cell">
+      <div class="gov-param">Design Intent</div>
+      <div class="gov-name">Jurisdictional Flexibility</div>
+      <div class="gov-text">Different deployments can specify different flagging authorities — EU regulator, US Treasury list, community-curated — without contract code changes.</div>
+    </div>
+  </div>
+  <div style="margin-top: 3rem;" class="reveal">
+    <div class="section-label">What the Flagging Authority Can and Cannot Do</div>
+    <div class="grid-2" style="margin-top: 1.5rem; gap: 1px; background: var(--border); border: 1px solid var(--border);">
+      <div style="background: var(--bg-card); padding: 28px 32px;">
+        <div class="section-label" style="margin-bottom: 1rem; color: var(--red);">Can</div>
+        <ul class="clean-list">
+          <li>Add commitment hashes to the exclusion set</li>
+          <li>Add commitment hashes to the association set</li>
+          <li>Update list provider data sources</li>
+        </ul>
+      </div>
+      <div style="background: var(--bg-card); padding: 28px 32px;">
+        <div class="section-label" style="margin-bottom: 1rem; color: var(--green);">Cannot</div>
+        <ul class="clean-list">
+          <li>Access or move user funds</li>
+          <li>Deanonymize users or reveal transaction history</li>
+          <li>Retroactively invalidate proofs generated before flagging</li>
+          <li>Change the core protocol without timelock + governance vote</li>
+          <li>Act as a single point of failure — authority change requires timelock</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <span class="nav-wordmark" style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; display: block;">Poseidra</span>
+    <p>Non-custodial ZK privacy protocol. Open source. Formally specified.</p>
+  </div>
+  <div>
+    <div class="footer-col-title">Protocol</div>
+    <ul class="footer-links">
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="compliance.html">Compliance</a></li>
+      <li><a href="roadmap.html">Roadmap</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Research</div>
+    <ul class="footer-links">
+      <li><a href="research.html">Paper</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="#">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>Poseidra © 2025 · Open Source · Non-Custodial</p>
+  <p>Research only. Not financial or legal advice.</p>
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

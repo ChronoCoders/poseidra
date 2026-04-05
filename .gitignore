@@ -1,0 +1,10 @@
+target/
+build/
+node_modules/
+*.wtns
+*.zkey
+*.ptau
+*.r1cs
+.env
+CLAUDE.md
+.claude/

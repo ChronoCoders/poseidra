@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Poseidra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── POSEIDRA SHARED STYLES ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080A0F;
+  --bg-raised: #0D1018;
+  --bg-card:   #111520;
+  --border:    #1E2535;
+  --border-hi: #2C3650;
+  --gold:      #C8A96E;
+  --gold-dim:  #8A7044;
+  --text:      #E8EAF0;
+  --text-muted:#8891A8;
+  --text-dim:  #4A5168;
+  --accent:    #4A7DFF;
+  --green:     #2DD4AA;
+  --red:       #FF4A6A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  height: 72px;
+  background: rgba(8,10,15,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-mark { width: 36px; height: 36px; }
+.logo-mark svg { width: 100%; height: 100%; }
+
+.nav-wordmark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--gold); }
+
+.nav-cta {
+  background: transparent !important;
+  border: 1px solid var(--gold-dim) !important;
+  color: var(--gold) !important;
+  padding: 8px 20px !important;
+  border-radius: 2px;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: rgba(200,169,110,0.08) !important;
+  border-color: var(--gold) !important;
+}
+
+/* PAGE HERO */
+.page-hero {
+  padding: 160px 4rem 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 80% 30%, rgba(74,125,255,0.05) 0%, transparent 70%);
+}
+
+.page-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 70%);
+}
+
+.page-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.page-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+  position: relative;
+}
+
+.page-title em { color: var(--gold); font-style: italic; }
+
+.page-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 540px;
+  line-height: 1.8;
+  position: relative;
+}
+
+/* SECTIONS */
+.section { padding: 80px 4rem; }
+.section-alt { background: var(--bg-raised); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  max-width: 700px;
+}
+
+.section-body {
+  color: var(--text-muted);
+  max-width: 560px;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: var(--border-hi); }
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.data-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-card); }
+.td-name { color: var(--text); font-weight: 500; }
+.td-mono { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gold); }
+
+/* MONO BLOCK */
+.mono-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  padding: 20px 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.9;
+  margin: 1.5rem 0;
+}
+.mono-block .k { color: var(--gold); }
+.mono-block .c { color: var(--text-dim); }
+
+/* BULLET LIST */
+.clean-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+.clean-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.clean-list li::before { content: '—'; color: var(--gold-dim); flex-shrink: 0; margin-top: 2px; }
+
+/* BUTTONS */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: #080A0F;
+  padding: 13px 26px;
+  border-radius: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: #D4B87A; transform: translateY(-1px); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-hi);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* FOOTER */
+footer {
+  padding: 60px 4rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 40px;
+}
+.footer-brand p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; max-width: 280px; margin-top: 0.75rem; }
+.footer-col-title { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.25rem; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-bottom { padding: 20px 4rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.footer-bottom p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.1em; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* GRID HELPERS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+
+</style>
+<style>
+.phase-block {
+  border: 1px solid var(--border);
+  margin-bottom: 3px;
+  background: var(--bg-card);
+  transition: border-color 0.3s;
+}
+.phase-block:hover { border-color: var(--border-hi); }
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.phase-header.gold { border-left: 3px solid var(--gold); }
+.phase-header.blue { border-left: 3px solid var(--accent); }
+.phase-header.green { border-left: 3px solid var(--green); }
+.phase-header.teal  { border-left: 3px solid #22D3EE; }
+.phase-header.purple { border-left: 3px solid #A78BFA; }
+
+.phase-num-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  border: 1px solid var(--border-hi);
+  padding: 4px 12px;
+  flex-shrink: 0;
+}
+.phase-title-block { flex: 1; }
+.phase-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.3rem;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.phase-agents {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+.phase-agents span { color: var(--gold); }
+
+.phase-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+.phase-col {
+  padding: 24px 28px;
+  border-right: 1px solid var(--border);
+}
+.phase-col:last-child { border-right: none; }
+.phase-col-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.phase-items-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.phase-items-list li {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 10px;
+  line-height: 1.5;
+}
+.phase-items-list li::before { content: '—'; color: var(--text-dim); flex-shrink: 0; }
+
+.criteria-item {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 10px;
+  line-height: 1.5;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.criteria-item:last-child { border-bottom: none; }
+.criteria-item::before { content: '✓'; color: var(--green); flex-shrink: 0; font-size: 0.7rem; margin-top: 2px; }
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+.principle-cell {
+  background: var(--bg-card);
+  padding: 28px 24px;
+}
+.principle-icon {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.8rem;
+  color: var(--border-hi);
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+.principle-title { font-size: 0.88rem; font-weight: 500; color: var(--text); margin-bottom: 0.4rem; }
+.principle-text  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="18,3 33,12 33,24 18,33 3,24 3,12" stroke="#C8A96E" stroke-width="1" fill="none"/>
+        <polygon points="18,9 27,14.5 27,21.5 18,27 9,21.5 9,14.5" stroke="#C8A96E" stroke-width="0.5" fill="rgba(200,169,110,0.05)"/>
+        <circle cx="18" cy="18" r="3" fill="#C8A96E"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Poseidra</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="architecture.html">Architecture</a></li>
+    <li><a href="compliance.html">Compliance</a></li>
+    <li><a href="research.html">Research</a></li>
+    <li><a href="roadmap.html" class="active">Roadmap</a></li>
+    <li><a href="docs.html" class="nav-cta">Docs</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-grid"></div>
+  <div class="page-label">Implementation Roadmap</div>
+  <h1 class="page-title">Five phases to <em>production.</em></h1>
+  <p class="page-sub">Each phase has concrete completion criteria. A phase is complete when every criterion passes — not before. No skipping, no shortcuts.</p>
+</div>
+
+<!-- PHASES -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">Phases</div>
+    <h2 class="section-title">Sequenced. Dependency-aware.</h2>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase-block reveal" style="margin-top: 2.5rem;">
+    <div class="phase-header gold">
+      <div class="phase-num-badge">PHASE 01</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Circuits + Prover</div>
+        <div class="phase-agents">Agents: <span>circuit-builder</span> · <span>rust-prover-builder</span></div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-col">
+        <div class="phase-col-title">Circuits (circom)</div>
+        <ul class="phase-items-list">
+          <li>commitment.circom — Poseidon(domain_C, secret, nullifier)</li>
+          <li>nullifier.circom — Poseidon(domain_N, nullifier, chain_id, contract)</li>
+          <li>withdraw.circom — full withdrawal circuit</li>
+          <li>Poseidon t=3 implementation</li>
+          <li>Compile, prove, verify scripts</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Rust Prover</div>
+        <ul class="phase-items-list">
+          <li>poseidon.rs — matching circuit parameters exactly</li>
+          <li>witness.rs — full witness generation</li>
+          <li>prover.rs — PLONK proof generation</li>
+          <li>domain.rs — domain separation constants</li>
+          <li>Typed errors, zero unwrap() in lib code</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Completion Criteria</div>
+        <div class="criteria-item">Constraint count verified: 2,300–2,600</div>
+        <div class="criteria-item">Poseidon output: Rust == circom for 5+ test vectors</div>
+        <div class="criteria-item">Proving time &lt;2s measured on release build</div>
+        <div class="criteria-item">All invalid witness tests rejected</div>
+        <div class="criteria-item">Domain constants documented and shared</div>
+        <div class="criteria-item">cargo build + clippy: zero warnings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-block reveal">
+    <div class="phase-header blue">
+      <div class="phase-num-badge">PHASE 02</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Smart Contracts</div>
+        <div class="phase-agents">Agent: <span>solidity-builder</span> · Prerequisite: Phase 1 complete</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-col">
+        <div class="phase-col-title">Contracts</div>
+        <ul class="phase-items-list">
+          <li>Poseidra.sol — deposit, withdraw, nullifier tracking</li>
+          <li>MerkleTree.sol — Poseidon, depth 20, root history</li>
+          <li>Verifier.sol — generated from circuit via snarkjs</li>
+          <li>ComplianceRegistry.sol — association + exclusion sets</li>
+          <li>Poseidon.sol — matching circuit constants exactly</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Tests + Tooling</div>
+        <ul class="phase-items-list">
+          <li>Foundry test suite — 100% coverage</li>
+          <li>Fuzz tests — invalid proof, double spend, stale root</li>
+          <li>Gas snapshot — forge snapshot</li>
+          <li>Deploy script — Deploy.s.sol</li>
+          <li>Local anvil integration test</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Completion Criteria</div>
+        <div class="criteria-item">forge build: zero warnings</div>
+        <div class="criteria-item">forge test: all pass, none skipped</div>
+        <div class="criteria-item">Deposit gas &lt;250k (measured)</div>
+        <div class="criteria-item">Withdrawal gas &lt;600k (measured)</div>
+        <div class="criteria-item">Verifier.sol accepts proof from Rust prover</div>
+        <div class="criteria-item">Double spend rejected on-chain</div>
+        <div class="criteria-item">Stale root (101st) rejected on-chain</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-block reveal">
+    <div class="phase-header green">
+      <div class="phase-num-badge">PHASE 03</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Backend + Relayer</div>
+        <div class="phase-agents">Agent: <span>rust-backend-builder</span> · Prerequisite: Phase 2 complete</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-col">
+        <div class="phase-col-title">Backend API</div>
+        <ul class="phase-items-list">
+          <li>Chain indexer — Deposit / Withdrawal events</li>
+          <li>Local Merkle tree state</li>
+          <li>GET /merkle/path/{commitment}</li>
+          <li>GET /roots — last 100 valid roots</li>
+          <li>PostgreSQL: commitments, nullifiers, roots</li>
+          <li>Redis: caching, job queue</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Relayer</div>
+        <ul class="phase-items-list">
+          <li>Commit-reveal fee mechanism</li>
+          <li>POST /submit — accept withdrawal + fee commitment</li>
+          <li>GET /status/{job_id}</li>
+          <li>Multiple RPC endpoints, rotation on failure</li>
+          <li>Direct withdrawal fallback</li>
+          <li>Private key: env-only, never logged</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Completion Criteria</div>
+        <div class="criteria-item">cargo build + clippy: zero warnings (both crates)</div>
+        <div class="criteria-item">Full deposit → index → path → proof → relay cycle works</div>
+        <div class="criteria-item">Commit-reveal fee cycle tested end-to-end</div>
+        <div class="criteria-item">Direct withdrawal fallback tested</div>
+        <div class="criteria-item">No secret material in any log output</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-block reveal">
+    <div class="phase-header teal">
+      <div class="phase-num-badge">PHASE 04</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Compliance Layer</div>
+        <div class="phase-agents">Agent: <span>compliance-builder</span> · Prerequisite: Phase 3 complete</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-col">
+        <div class="phase-col-title">Set Management</div>
+        <ul class="phase-items-list">
+          <li>Association set A — on-chain backed</li>
+          <li>Exclusion set E — sparse Merkle tree</li>
+          <li>Local cache synced from chain events</li>
+          <li>Governance authority validation</li>
+          <li>Timelock enforcement</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">ZK Proofs + API</div>
+        <ul class="phase-items-list">
+          <li>MembershipProof — C ∈ A</li>
+          <li>NonMembershipProof — C ∉ E</li>
+          <li>Temporal validity — valid_at timestamp</li>
+          <li>Risk scoring API integration + cache</li>
+          <li>POST /compliance/prove/membership</li>
+          <li>POST /compliance/prove/nonmembership</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Completion Criteria</div>
+        <div class="criteria-item">Membership proof generates and verifies</div>
+        <div class="criteria-item">Non-membership proof generates and verifies</div>
+        <div class="criteria-item">Temporal validity: proof before flagging valid</div>
+        <div class="criteria-item">Temporal validity: proof after flagging invalid</div>
+        <div class="criteria-item">Governance timelock tested</div>
+        <div class="criteria-item">API key never appears in logs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase-block reveal">
+    <div class="phase-header purple">
+      <div class="phase-num-badge">PHASE 05</div>
+      <div class="phase-title-block">
+        <div class="phase-title">Integration + Deploy</div>
+        <div class="phase-agents">Agent: <span>integration-validator</span> · Prerequisite: All phases complete</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-col">
+        <div class="phase-col-title">Integration Tests</div>
+        <ul class="phase-items-list">
+          <li>Full deposit → proof → withdrawal cycle</li>
+          <li>Cross-client: Rust proof accepted by Solidity verifier</li>
+          <li>Double spend → reverts</li>
+          <li>Stale root (101) → reverts</li>
+          <li>Invalid proof (1 byte corrupt) → reverts</li>
+          <li>MEV ordering simulation</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Testnet Deploy</div>
+        <ul class="phase-items-list">
+          <li>zkSync Era testnet</li>
+          <li>Scroll testnet</li>
+          <li>Base Sepolia</li>
+          <li>Deploy addresses → deployments/{network}.json</li>
+          <li>Gas snapshot on live contracts</li>
+          <li>48h stability period</li>
+        </ul>
+      </div>
+      <div class="phase-col">
+        <div class="phase-col-title">Pre-Mainnet Checklist</div>
+        <div class="criteria-item">All integration tests pass on testnet</div>
+        <div class="criteria-item">Gas targets met (measured, not estimated)</div>
+        <div class="criteria-item">Domain constants consistent — all components</div>
+        <div class="criteria-item">Root window boundary tested (100th + 101st)</div>
+        <div class="criteria-item">No hardcoded addresses, keys, or constants</div>
+        <div class="criteria-item">External smart contract audit complete</div>
+        <div class="criteria-item">External ZK circuit audit complete</div>
+        <div class="criteria-item">1 deposit + 1 withdrawal on mainnet before announcement</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENGINEERING PRINCIPLES -->
+<div class="section section-alt">
+  <div class="reveal">
+    <div class="section-label">Engineering Standards</div>
+    <h2 class="section-title">Non-negotiable across all phases.</h2>
+  </div>
+  <div class="principles-grid reveal">
+    <div class="principle-cell">
+      <div class="principle-icon">0</div>
+      <div class="principle-title">Zero Warnings</div>
+      <div class="principle-text">cargo build, cargo clippy, forge build — all clean. No exceptions. No suppressed warnings.</div>
+    </div>
+    <div class="principle-cell">
+      <div class="principle-icon">∅</div>
+      <div class="principle-title">No unwrap()</div>
+      <div class="principle-text">No unwrap() or expect() outside tests. All errors typed and propagated with context.</div>
+    </div>
+    <div class="principle-cell">
+      <div class="principle-icon">⊗</div>
+      <div class="principle-title">No Secret Leakage</div>
+      <div class="principle-text">No secret material in logs, API responses, or error messages. Witness computation isolated from network-facing code.</div>
+    </div>
+    <div class="principle-cell">
+      <div class="principle-icon">⊕</div>
+      <div class="principle-title">Measured Gas</div>
+      <div class="principle-text">Gas figures come from Foundry forge snapshot on deployed contracts. No estimates in production decisions.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <span class="nav-wordmark" style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; display: block;">Poseidra</span>
+    <p>Non-custodial ZK privacy protocol. Open source. Formally specified.</p>
+  </div>
+  <div>
+    <div class="footer-col-title">Protocol</div>
+    <ul class="footer-links">
+      <li><a href="architecture.html">Architecture</a></li>
+      <li><a href="compliance.html">Compliance</a></li>
+      <li><a href="roadmap.html">Roadmap</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Research</div>
+    <ul class="footer-links">
+      <li><a href="research.html">Paper</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="#">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>Poseidra © 2025 · Open Source · Non-Custodial</p>
+  <p>Research only. Not financial or legal advice.</p>
+</div>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.06 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
